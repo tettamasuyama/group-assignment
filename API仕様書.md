@@ -2,32 +2,32 @@
 
 ## 1. 認証系API
 
-| No | API名 | エンドポイント | メソッド | 認証 | 権限 | 概要 |
-|----|------|--------------|----------|------|------|------|
-| 1 | registerUser | /api/auth/register | POST | 不要 | 全員 | ユーザーを新規登録 |
-| 2 | login | /api/auth/login | POST | 不要 | 全員 | ログインしJWTを取得 |
+| No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
+|----|--------------|----------|------|------|------|
+| 1 | /api/auth/register | POST | 不要 | 全員 | ユーザーを新規登録 |
+| 2 | /api/auth/login | POST | 不要 | 全員 | ログインしJWTを取得 |
 
 ---
 
 ## 2. 管理者専用API（admin）
 
-| No | API名 | エンドポイント | メソッド | 認証 | 権限 | 概要 |
-|----|------|--------------|----------|------|------|------|
-| 3 | getEmployeesForADMIN | /api/employees | GET | 必要 | 全員 | 社員一覧を取得(全ての情報) |
-| 4 | 社員登録 | /api/employees | POST | 必要 | admin | 社員情報を新規登録 |
-| 5 | 社員更新 | /api/employees/{id} | PUT | 必要 | admin | 社員情報を更新 |
-| 6 | 社員削除 | /api/employees/{id} | DELETE | 必要 | admin | 社員情報を削除 |
-| 7 | CSVインポート | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
+| No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
+|----|--------------|----------|------|------|------|
+| 3 | /api/employees | GET | 必要 | 全員 | 社員一覧を取得(全ての情報) |
+| 4 | /api/employees | POST | 必要 | admin | 社員情報を新規登録 |
+| 5 | /api/employees/{id} | PUT | 必要 | admin | 社員情報を更新 |
+| 6 | /api/employees/{id} | DELETE | 必要 | admin | 社員情報を削除 |
+| 7 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
 
 ---
 
 ## 3. 社員専用API（employee）
 
-| No | API名 | エンドポイント | メソッド | 認証 | 権限 | 概要 |
-|----|------|--------------|----------|------|------|------|
-| 10 | getEmployeesForEMPLOYEE | /api/employees | GET | 必要 | 社員 | 社員一覧を取得（氏名・メールアドレスのみ）
-| 11 | 自分の情報取得 | /api/employees/me | GET | 必要 | employee | 自身の情報を取得 |
-| 12 | 自分の情報更新 | /api/employees/me | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
+| No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
+|----|--------------|----------|------|------|------|
+| 10 | /api/employees | GET | 必要 | 社員 | 社員一覧を取得（氏名・メールアドレスのみ）
+| 11 | /api/employees/me | GET | 必要 | employee | 自身の情報を取得 |
+| 12 | /api/employees/me | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
 
 ---
 
