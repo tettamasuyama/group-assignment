@@ -1,0 +1,34 @@
+@startuml
+actor User
+participant LoginController
+participant LoginService
+participant LoginRepository
+participant JwtProvider
+database DB
+
+== login == 
+User -> LoginController : POST /auth/login(email, password)
+LoginController -> LoginService : authenticate(email, password)
+LoginService -> LoginRepository : findByEmail(email)
+LoginRepository -> DB : SELECT 1 FROM users WHERE email=?
+DB --> LoginRepository : user data
+LoginRepository --> LoginService :user
+
+alt user not found
+  LoginService --> LoginController : 401 Unauthorized
+  LoginController --> User : 401 error
+
+else OK
+  LoginService -> JwtProvider : genetateToken(userId)
+  JwtProvider --> LoginService : accessToken
+  LoginService --> LoginController : token
+  LoginController --> User : 200 OK + JWT
+
+==logout==
+User -> LoginController : POST /auth/ Authorization: Bearer <JWT>
+LoginController -> LoginService : deleteToken()
+LoginService -> LoginService : delete token
+LoginService --> LoginController : OK
+LoginController --> User : 200 OK
+
+@enduml
