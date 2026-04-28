@@ -23,26 +23,21 @@ enum Status
 
 ' --- Controller → Service ---
 AuthController --> AuthService
-UserController --> UserService
 EmployeeController --> EmployeeService
 
 ' --- Service → Repository ---
-UserService --> UserRepository
 EmployeeService --> EmployeeRepository
 
 ' --- Service → Entity ---
-UserService --> User
 EmployeeService --> Employee
 
 ' --- Controller → DTO ---
 AuthController --> AuthRequestDto
 AuthController --> AuthResponseDto
-UserController --> CreateUserRequestDto
 EmployeeController --> EmployeeRequestDto
 
 ' --- Service → DTO ---
 AuthService --> AuthResponseDto
-UserService --> CreateUserRequestDto
 EmployeeService --> EmployeeRequestDto
 
 ' --- Entity → Enum ---
@@ -134,7 +129,6 @@ class AuthService {
   + authenticate(String email, String password): AuthResponseDto res
   + register(CreateUserRequestDto req): AuthResponseDto res
 }
-
 
 class UserRepository {
   + findByEmail(String email)
