@@ -127,19 +127,14 @@ enum Status {
 
 class AuthController {
   + login(AuthRequestDto req): AuthRequestDto res
+  + register(CreateUserRequestDto req): 201 OK
 }
 
 class AuthService {
   + authenticate(String email, String password): AuthResponseDto res
+  + register(CreateUserRequestDto req): AuthResponseDto res
 }
 
-class UserController {
-  + createUser(CreateUserRequestDto req): 201 OK
-}
-
-class UserService {
-  + save(CreateUserRequestDto req): 201 OK
-}
 
 class UserRepository {
   + findByEmail(String email)
