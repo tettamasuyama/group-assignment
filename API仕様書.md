@@ -15,8 +15,8 @@
 |----|--------------|----------|------|------|------|
 | 3 | /api/employees | GET | 必要 | 全員 | 社員一覧を取得(全ての情報) |
 | 4 | /api/employees | POST | 必要 | admin | 社員情報を新規登録 |
-| 5 | /api/employees/{id} | PUT | 必要 | admin | 社員情報を更新 |
-| 6 | /api/employees/{id} | DELETE | 必要 | admin | 社員情報を削除 |
+| 5 | /api/employees/admin | PUT | 必要 | admin | 社員情報を更新 |
+| 6 | /api/employees/admin | DELETE | 必要 | admin | 社員情報を削除 |
 | 7 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
 
 ---
@@ -26,8 +26,8 @@
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
 | 10 | /api/employees | GET | 必要 | 社員 | 社員一覧を取得（氏名・メールアドレスのみ）
-| 11 | /api/employees/me | GET | 必要 | employee | 自身の情報を取得 |
-| 12 | /api/employees/me | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
+| 11 | /api/employees/employee | GET | 必要 | employee | 自身の情報を取得 |
+| 12 | /api/employees/employee | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
 
 ---
 
