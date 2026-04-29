@@ -195,6 +195,14 @@ class CreateUserRequestDto {
   + getRole()
 }
 
+class CreateUserResponseDto {
+  - email: String
+  - role: Role
+
+  + setEmail(String email)
+  + setRole(Role role)
+}
+
 class EmployeeRequestDto {
   - employeeNumber: String
   - name: String
@@ -213,4 +221,38 @@ class EmployeeRequestDto {
   + getStatus()
 }
 
+class EmployeeResponseForAdminDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus() 
+  + setEmployeeNumber()
+  + setName()
+  + setEmail()
+  + setDepartment()
+  + setPosition()
+  + setHireDate()
+  + setStatus() 
+}
+
+class EmployeeResponseForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
+  + setName()
+  + setEmail()
+}
 @enduml
