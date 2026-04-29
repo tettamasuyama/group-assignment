@@ -25,7 +25,7 @@
 
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
-| 10 | /api/employees | GET | 必要 | employee | 社員一覧を取得（氏名・メールアドレスのみ）
+| 10 | /api/employees/employee | GET | 必要 | employee | 社員一覧を取得（氏名・メールアドレスのみ）
 | 11 | /api/employees/employee | GET | 必要 | employee | 自身の情報を取得 |
 | 12 | /api/employees/employee | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
 
