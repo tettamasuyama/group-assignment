@@ -147,7 +147,7 @@ class UserRepository {
 
 class EmployeeController {
   + getEmployees(Role role): List<Employee> employeeList
-  + getEmployee(String email): Employee employee
+  + getEmployee(String email, Role role): Employee employee
   + createEmployee(EmployeeRequestDto req): 201 OK
   + updateEmployee(EmployeeRequestDto req): 200 OK 
   + deleteEmployee(String employeeNumber): 200 OK
@@ -156,7 +156,7 @@ class EmployeeController {
 
 class EmployeeService {
   + findAll(Role role): List<Employee> employeeList
-  + findByEmail(String email) Employee employee
+  + findByEmail(String email, Role role): Employee employee
   + create(EmployeeRequestDto req): 201 OK
   + update(EmployeeRequestDto req): 200 OK
   + delete(String employeeNumber): 200 OK
