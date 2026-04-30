@@ -7,7 +7,7 @@ participant JwtProvider
 database DB
 
 == login == 
-User -> AuthController : POST /auth/login(email, password)
+User -> AuthController : POST api/auth/login(email, password)
 AuthController -> AuthService : authenticate(email, password)
 AuthService -> UserRepository : findByEmail(email, password)
 UserRepository -> DB : SELECT 1 FROM users WHERE email=? AND password=?
@@ -25,7 +25,7 @@ else OK
   AuthController --> User : 200 OK + JWT
 
 ==logout==
-User -> AuthController : POST /auth/ Authorization: Bearer <JWT>
+User -> AuthController : POST api/auth/logout Authorization: Bearer <JWT>
 AuthController -> AuthService : deleteToken()
 AuthService -> JwtProvider : invalidateToken(accessToken)
 JwtProvider --> AuthService : token invalidated
@@ -34,7 +34,7 @@ AuthController --> User : 200 OK
 
 
 == register ==
-User -> AuthController : POST /auth/register(AuthRequestDto req)
+User -> AuthController : POST api/auth/register(AuthRequestDto req)
 AuthController -> AuthService : register(authRequestDto req)
 AuthService --> UserRepository : existsByEmail(email)
 UserRepository -> DB : SELECT 1 FROM users WHERE email=?
