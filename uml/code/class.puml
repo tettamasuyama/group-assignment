@@ -83,15 +83,17 @@ class Employee {
   - status: Status
 
   + getId(): Long id
-  + setEmployeeNumber(): String employeeNumber
+  + setEmployeeNumber(String employeeNumber)
   + getName(): String name
+  + getEmail(): String email
   + getDepartment(): Department department
   + getPosition(): Position position
   + getHireDate(): LocalDate hireDate
   + getStatus(): Status status
-  + setId(String id)
-  + setEmployeeNumber(employeeNumber employeeNumber)
+  + setId(Long id)
+  + setEmployeeNumber(String employeeNumber)
   + setName(String name)
+  + setEmail(String email)
   + setDepartment(Department department)
   + setPosition(Position position)
   + setHireDate(LocalDate hireDate)
