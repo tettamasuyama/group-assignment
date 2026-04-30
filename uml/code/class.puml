@@ -148,8 +148,7 @@ class UserRepository {
 class EmployeeController {
   + getEmployees(Role role): List<Employee> employeeList
   + getEmployee(String email, Role role): Employee employee
-  + createEmployee(EmployeeRequestDto req): 201 OK
-  + updateEmployee(EmployeeRequestDto req): 200 OK 
+  + createOrUpdateEmployee(EmployeeRequestDto req): 201 OK / 200 OK
   + deleteEmployee(String employeeNumber): 200 OK
   + importEmployees(MultipartFile file): 201 OK
 }
