@@ -1,0 +1,93 @@
+@startuml
+actor User
+participant EmployeeController
+participant EmployeeService
+participant EmployeeRepository
+participant JwtProvider
+participant JwtFilter
+database DB
+
+== get employeeList ==
+User -> JwtFilter : GET api/employees(role)
+JwtFilter -> JwtProvider : validateToken(token)
+JwtProvider --> JwtFilter : validated
+JwtFilter --> EmployeeController : role
+
+EmployeeController -> EmployeeService : findAll(role)
+EmployeeService -> EmployeeRepository : findAll()
+EmployeeRepository -> DB : SELECT * FROM employees
+DB --> EmployeeRepository : employeeList
+EmployeeRepository --> EmployeeService : employeeList
+
+alt role == ADMIN
+  EmployeeService --> EmployeeController : 200 OK + List<EmployeeResponseForAdminDto> employeeList
+  EmployeeController --> User : 200 OK + employeeList
+else role == EMPLOYEE
+  EmployeeService --> EmployeeController : 200 OK + List<EmployeeResponseForEmployeeDto> employeeList
+  EmployeeController --> User : 200 OK + employeeList (only active employees)
+end
+
+== create or update employee ==
+User -> JwtFilter : PUT api/employees(employeeRequestDto)
+JwtFilter -> JwtProvider : validateToken(token)
+JwtProvider --> JwtFilter : validated
+JwtFilter --> EmployeeController : employeeRequestDto
+
+EmployeeController -> EmployeeService : createOrUpdateEmployee(employeeRequestDto)
+EmployeeService -> EmployeeRepository : upsert(employeeRequestDto)
+EmployeeRepository -> DB : INSERT ... ON CONFLICT DO UPDATE
+DB --> EmployeeRepository : OK
+EmployeeRepository --> EmployeeService : OK
+EmployeeService --> EmployeeController : 200 OK
+EmployeeController --> User : 200 OK
+end
+
+
+== delete employee ==
+User -> JwtFilter : DELETE api/employees/admin
+JwtFilter -> JwtProvider : validateToken(token)
+JwtProvider --> JwtFilter : validated
+JwtFilter --> EmployeeController : deleteEmployee(employeeNumber)
+EmployeeController -> EmployeeService : deleteEmployee(employeeNumber)
+EmployeeService -> EmployeeRepository : delete(employeeNumber)
+EmployeeRepository -> DB : DELETE FROM employees WHERE employee_number = ...
+DB --> EmployeeRepository : affectedRows = 0 or 1
+
+alt affectedRows == 1
+  → 200 OK
+else
+  → 404 Not Found
+end
+
+== import employee ==
+User -> JwtFilter : POST api/employees/import(file)
+JwtFilter -> JwtProvider : validateToken(token)
+JwtProvider --> JwtFilter : validated
+JwtFilter --> EmployeeController : file
+alt invalid file format
+  EmployeeController --> User : 400 Bad Request
+else valid file format
+  EmployeeController -> EmployeeService : importEmployees(file)
+  EmployeeService -> EmployeeRepository : batchUpsert(employees)
+  EmployeeRepository -> DB : BEGIN TRANSACTION
+  loop each row
+    EmployeeRepository -> DB : INSERT ... ON CONFLICT DO UPDATE
+    alt error
+      DB --> EmployeeRepository : error
+      EmployeeRepository -> DB : ROLLBACK
+      EmployeeRepository --> EmployeeService : Exception
+      EmployeeService --> EmployeeController : Exception
+      EmployeeController --> User : 400 or 409
+      break
+    else success
+      DB --> EmployeeRepository : OK
+    end
+  end
+  alt all success
+    EmployeeRepository -> DB : COMMIT
+    EmployeeRepository --> EmployeeService : success
+    EmployeeService --> EmployeeController : 200 OK
+    EmployeeController --> User : 200 OK
+  end
+end
+@enduml

@@ -83,15 +83,17 @@ class Employee {
   - status: Status
 
   + getId(): Long id
-  + setEmployeeNumber(): String employeeNumber
+  + setEmployeeNumber(String employeeNumber)
   + getName(): String name
+  + getEmail(): String email
   + getDepartment(): Department department
   + getPosition(): Position position
   + getHireDate(): LocalDate hireDate
   + getStatus(): Status status
-  + setId(String id)
-  + setEmployeeNumber(employeeNumber employeeNumber)
+  + setId(Long id)
+  + setEmployeeNumber(String employeeNumber)
   + setName(String name)
+  + setEmail(String email)
   + setDepartment(Department department)
   + setPosition(Position position)
   + setHireDate(LocalDate hireDate)
@@ -147,16 +149,15 @@ class UserRepository {
 
 class EmployeeController {
   + getEmployees(Role role): List<Employee> employeeList
-  + getEmployee(String email): Employee employee
-  + createEmployee(EmployeeRequestDto req): 201 OK
-  + updateEmployee(EmployeeRequestDto req): 200 OK 
+  + getEmployee(String email, Role role): Employee employee
+  + createOrUpdateEmployee(EmployeeRequestDto req): 201 OK / 200 OK
   + deleteEmployee(String employeeNumber): 200 OK
   + importEmployees(MultipartFile file): 201 OK
 }
 
 class EmployeeService {
   + findAll(Role role): List<Employee> employeeList
-  + findByEmail(String email) Employee employee
+  + findByEmail(String email, Role role): Employee employee
   + create(EmployeeRequestDto req): 201 OK
   + update(EmployeeRequestDto req): 200 OK
   + delete(String employeeNumber): 200 OK
@@ -195,6 +196,14 @@ class CreateUserRequestDto {
   + getRole()
 }
 
+class CreateUserResponseDto {
+  - email: String
+  - role: Role
+
+  + setEmail(String email)
+  + setRole(Role role)
+}
+
 class EmployeeRequestDto {
   - employeeNumber: String
   - name: String
@@ -213,4 +222,38 @@ class EmployeeRequestDto {
   + getStatus()
 }
 
+class EmployeeResponseForAdminDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus() 
+  + setEmployeeNumber()
+  + setName()
+  + setEmail()
+  + setDepartment()
+  + setPosition()
+  + setHireDate()
+  + setStatus() 
+}
+
+class EmployeeResponseForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
+  + setName()
+  + setEmail()
+}
 @enduml

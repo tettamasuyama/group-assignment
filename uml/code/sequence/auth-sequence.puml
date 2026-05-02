@@ -1,0 +1,62 @@
+@startuml
+actor User
+participant AuthController
+participant AuthService
+participant UserRepository
+participant JwtProvider
+database DB
+
+== login == 
+User -> AuthController : POST api/auth/login(email, password)
+AuthController -> AuthService : authenticate(email, password)
+AuthService -> UserRepository : findByEmail(email, password)
+UserRepository -> DB : SELECT 1 FROM users WHERE email=? AND password=?
+DB --> UserRepository : user data
+UserRepository --> AuthService :user
+
+alt user not found
+  AuthService --> AuthController : 401 Unauthorized
+  AuthController --> User : 401 error
+
+else OK
+  AuthService -> JwtProvider : genetateToken(id)
+  JwtProvider --> AuthService : accessToken
+  AuthService --> AuthController : token
+  AuthController --> User : 200 OK + JWT
+
+==logout==
+User -> AuthController : POST api/auth/logout Authorization: Bearer <JWT>
+AuthController -> AuthService : deleteToken()
+AuthService -> JwtProvider : invalidateToken(accessToken)
+JwtProvider --> AuthService : token invalidated
+AuthService --> AuthController : OK
+AuthController --> User : 200 OK
+
+
+== register ==
+User -> AuthController : POST api/auth/register(AuthRequestDto req)
+AuthController -> AuthService : register(authRequestDto req)
+AuthService --> UserRepository : existsByEmail(email)
+UserRepository -> DB : SELECT 1 FROM users WHERE email=?
+
+alt user already exists
+
+  DB --> UserRepository : exists
+  UserRepository --> AuthService : true
+  AuthService --> AuthController : 409 Conflict
+  AuthController --> User : 409 Conflict
+
+else OK
+DB --> UserRepository : not exists
+UserRepository --> AuthService : false
+AuthService -> UserRepository : save(AuthRequestDto req)
+UserRepository -> DB : INSERT INTO users (email, password, role) VALUES ($1, $2, $3)
+DB --> UserRepository : 201 OK + user data
+UserRepository --> AuthService : 201 OK + user data
+AuthService --> JwtProvider : genetateToken(id)
+JwtProvider --> AuthService : JWT
+AuthService --> AuthController : 201 OK +  JWT + user datta
+AuthController --> User : 201 OK + JWT + user data
+end
+
+@enduml
