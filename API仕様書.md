@@ -116,11 +116,7 @@
 {
   "status": "SUCCESS",
   "data": {
-    "token": "jwt-token",
-    "user": {
-      "email": "example@example.com",
-      "role": "ADMIN"
-    }
+    "token": "jwt-token"
   }
 }
 ```
