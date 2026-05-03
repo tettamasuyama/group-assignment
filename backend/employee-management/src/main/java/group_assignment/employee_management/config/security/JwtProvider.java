@@ -20,7 +20,7 @@ public class JwtProvider {
   private SecretKey secretKey;
 
   @Value("${jwt.expiration}")
-  private String expiration;
+  private Long expiration;
 
   @PostConstruct
   public void setKey() {
@@ -35,9 +35,10 @@ public class JwtProvider {
         .getBody();
   }
 
-  public String generateToken(Long userId) {
+  public String generateToken(Long userId, String role) {
     return Jwts.builder()
       .setSubject(userId.toString())
+      .claim("role", role)
       .setIssuedAt(new Date())
       .setExpiration(new Date(System.currentTimeMillis() + expiration))
       .signWith(secretKey)
@@ -58,6 +59,14 @@ public class JwtProvider {
       return Long.parseLong(getClaims(token).getSubject());
     } catch (NumberFormatException e) {
       throw new RuntimeException("Invalid userId format in token");
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  public String getRole(String token) {
+    try {
+      return getClaims(token).get("role", String.class);
     } catch (Exception e) {
       return null;
     }
