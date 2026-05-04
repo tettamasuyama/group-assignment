@@ -64,6 +64,14 @@ public class JwtProvider {
     }
   }
 
+  public String getEmail(String token) {
+    try {
+      return getClaims(token).get("email", String.class);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   public String getRole(String token) {
     try {
       return getClaims(token).get("role", String.class);
