@@ -1,4 +1,4 @@
-package group_assignment.repository.user;
+package group_assignment.employee_management.repository.user;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
