@@ -1,0 +1,248 @@
+@startuml
+
+class User
+class Employee
+class AuthController
+class AuthService
+class UserController
+class UserService
+class UserRepository
+class EmployeeController
+class EmployeeService
+class EmployeeRepository
+
+class AuthRequestDto
+class AuthResponseDto
+class CreateUserRequestDto
+class EmployeeRequestDto
+
+enum Role
+enum Department
+enum Position
+enum Status
+
+' --- Controller → Service ---
+AuthController --> AuthService
+EmployeeController --> EmployeeService
+
+' --- Service → Repository ---
+EmployeeService --> EmployeeRepository
+
+' --- Service → Entity ---
+EmployeeService --> Employee
+
+' --- Controller → DTO ---
+AuthController --> AuthRequestDto
+AuthController --> AuthResponseDto
+EmployeeController --> EmployeeRequestDto
+
+' --- Service → DTO ---
+AuthService --> AuthResponseDto
+EmployeeService --> EmployeeRequestDto
+
+' --- Entity → Enum ---
+User --> Role
+Employee --> Department
+Employee --> Position
+Employee --> Status
+
+' --- Repository → Entity ---
+UserRepository --> User
+EmployeeRepository --> Employee
+
+' クラス定義
+class User {
+  - id: Long
+  - email: String
+  - password: String
+  - role: Role
+
+  + getId(): Long id
+  + getEmail(): String email
+  + getPassword(): String password
+  + getRole(): Role role
+  + setId(Long id)
+  + setEmail(String email)
+  + setPassword(String password)
+  + setRole(Role role)
+}
+
+class Employee {
+  - id: Long
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getId(): Long id
+  + setEmployeeNumber(String employeeNumber)
+  + getName(): String name
+  + getEmail(): String email
+  + getDepartment(): Department department
+  + getPosition(): Position position
+  + getHireDate(): LocalDate hireDate
+  + getStatus(): Status status
+  + setId(Long id)
+  + setEmployeeNumber(String employeeNumber)
+  + setName(String name)
+  + setEmail(String email)
+  + setDepartment(Department department)
+  + setPosition(Position position)
+  + setHireDate(LocalDate hireDate)
+  + setStatus(Status status)
+}
+
+' 列挙型定義
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum Department {
+  GENERAL("総務"),
+  HR("人事"),
+  PLANNING("企画"),
+  SALES("営業");
+}
+
+enum Position {
+  STAFF("一般社員"),
+  LEADER("主任"),
+  MANAGER("課長"),
+  DIRECTOR("部長"),
+  EXECUTIVE("本部長"),
+  CEO("社長");
+}
+
+enum Status {
+  ACTIVE
+  RETIRED
+}
+
+class AuthController {
+  + login(AuthRequestDto req): AuthRequestDto res
+  + register(CreateUserRequestDto req): 201 OK
+}
+
+class AuthService {
+  + authenticate(String email, String password): AuthResponseDto res
+  + register(CreateUserRequestDto req): AuthResponseDto res
+}
+
+class UserRepository {
+  + findByEmail(String email)
+}
+
+class EmployeeController {
+  + getEmployees(Role role): List<Employee> employeeList
+  + getEmployee(String email, Role role): Employee employee
+  + createOrUpdateEmployee(EmployeeRequestDto req): 201 OK / 200 OK
+  + deleteEmployee(String employeeNumber): 200 OK
+  + importEmployees(MultipartFile file): 201 OK
+}
+
+class EmployeeService {
+  + findAll(Role role): List<Employee> employeeList
+  + findByEmail(String email, Role role): Employee employee
+  + create(EmployeeRequestDto req): 201 OK
+  + update(EmployeeRequestDto req): 200 OK
+  + delete(String employeeNumber): 200 OK
+  + importCsv(MultipartFile file): 201 OK
+}
+
+class EmployeeRepository {
+  + findByEmail(String email)
+  + findByEmployeeNumber(String employeeNumber)
+} 
+
+' DTO
+class AuthRequestDto {
+  - email: String
+  - password: String
+
+  + getEmail()
+  + getPassword()
+}
+
+class AuthResponseDto {
+  - email: String
+  - role: Role
+
+  + setEmail(String email)
+  + setRole(Role role)
+}
+
+class CreateUserRequestDto {
+  - email: String
+  - password: String
+  - role: Role
+
+  + getEmail()
+  + getPassword()
+  + getRole()
+}
+
+class CreateUserResponseDto {
+  - email: String
+  - role: Role
+
+  + setEmail(String email)
+  + setRole(Role role)
+}
+
+class EmployeeRequestDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus()
+}
+
+class EmployeeResponseForAdminDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus() 
+  + setEmployeeNumber()
+  + setName()
+  + setEmail()
+  + setDepartment()
+  + setPosition()
+  + setHireDate()
+  + setStatus() 
+}
+
+class EmployeeResponseForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
+  + setName()
+  + setEmail()
+}
+@enduml
