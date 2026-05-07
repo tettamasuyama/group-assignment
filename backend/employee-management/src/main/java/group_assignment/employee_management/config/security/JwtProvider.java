@@ -4,9 +4,11 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import group_assignment.employee_management.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -35,7 +37,7 @@ public class JwtProvider {
         .getBody();
   }
 
-  public String generateToken(Long userId, String role) {
+  public String generateToken(Long userId,Role role) {
     return Jwts.builder()
       .setSubject(userId.toString())
       .claim("role", role)
@@ -72,9 +74,9 @@ public class JwtProvider {
     }
   }
 
-  public String getRole(String token) {
+  public Role getRole(String token) {
     try {
-      return getClaims(token).get("role", String.class);
+      return getClaims(token).get("role", Role.class);
     } catch (Exception e) {
       return null;
     }
