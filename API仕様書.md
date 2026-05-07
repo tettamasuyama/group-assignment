@@ -13,10 +13,10 @@
 
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
-| 3 | /api/employees | GET | 必要 | 全員 | 社員一覧を取得(全ての情報) |
+| 3 | /api/employees | GET | 必要 | admin | 社員一覧を取得(全ての情報) |
 | 4 | /api/employees | POST | 必要 | admin | 社員情報を新規登録 |
-| 5 | /api/employees/{id} | PUT | 必要 | admin | 社員情報を更新 |
-| 6 | /api/employees/{id} | DELETE | 必要 | admin | 社員情報を削除 |
+| 5 | /api/employees/{employeeNumber} | PUT | 必要 | admin | 社員情報を更新 |
+| 6 | /api/employees/{employeeNumber} | DELETE | 必要 | admin | 社員情報を削除 |
 | 7 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
 
 ---
@@ -25,7 +25,7 @@
 
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
-| 10 | /api/employees | GET | 必要 | 社員 | 社員一覧を取得（氏名・メールアドレスのみ）
+| 10 | /api/employees | GET | 必要 | employee | 社員一覧を取得（氏名・メールアドレスのみ）
 | 11 | /api/employees/me | GET | 必要 | employee | 自身の情報を取得 |
 | 12 | /api/employees/me | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
 
@@ -65,6 +65,7 @@
 ```json
 {
   "status": "ERROR",
+  "data": null,
   "message": "error message"
 }
 ```
@@ -72,7 +73,7 @@
 ### ステータスコード
 | コード | 意味 |
 |-------|------|
-| 200 | 成功(送信・更新) |
+| 200 | 成功(送信・更新・削除) |
 | 201 | 成功(作成) |
 | 400 | 入力エラー |
 | 401 | 認証エラー |
@@ -90,7 +91,6 @@
 {
   "email": "example@example.com",
   "password": "password123",
-  "role": "ADMIN",
 }
 ```
 
@@ -98,6 +98,7 @@
 ```json
 {
   "status": "SUCCESS",
+  "data": null,
   "message": null
 }
 ```
@@ -135,12 +136,12 @@ Authorization: Bearer {token}
   "status": "SUCCESS",
   "data": [
     {
-      "id": "11111",
+      "employeeNumber": "11111",
       "name": "山田太郎",
       "email": "example@example.com",
       "department": "営業部",
       "position": "部長",
-      "joinningDate": "2000/01/01",
+      "joiningDate": "2000-01-01",
       "status": "ACTIVE"
     }
   ],
@@ -161,7 +162,7 @@ Authorization: Bearer {token}
   "email": "example@example.com",
   "department": "営業部",
   "position": "部長",
-  "joinningDate": "2000/01/01",
+  "joiningDate": "2000-01-01",
   "status": "ACTIVE"
 }
 ```
@@ -170,10 +171,11 @@ Authorization: Bearer {token}
 ```json
 {
   "status": "SUCCESS",
+  "data": {},
   "message": null
 }
 ```
-## ◼︎PUT /api/employees/{id} (社員情報を更新)
+## ◼︎PUT /api/employees/{employeeNumber} (社員情報を更新)
 
 #### リクエストヘッダー
 
@@ -186,7 +188,7 @@ Authorization: Bearer {token}
   "email": "example@example.com",
   "department": "営業部",
   "position": "部長",
-  "joinningDate": "2000/01/01",
+  "joiningDate": "2000-01-01",
   "status": "ACTIVE"
 }
 ```
@@ -195,11 +197,12 @@ Authorization: Bearer {token}
 ```json
 {
   "status": "SUCCESS",
+  "data": {},
   "message": null
 }
 ```
 
-## ◼︎DELETE /api/employees/{id} (社員情報を削除)
+## ◼︎DELETE /api/employees/{employeeNumber} (社員情報を削除)
 
 #### リクエストヘッダー
 
@@ -209,6 +212,7 @@ Authorization: Bearer {token}
 ```json
 {
   "status": "SUCCESS",
+  "data": {},
   "message": null
 }
 ```
@@ -226,6 +230,7 @@ Authorization: Bearer {token}
 ```json
 {
   "status": "SUCCESS",
+  "data": {},
   "message": null
 }
 ```
@@ -243,7 +248,7 @@ Authorization: Bearer {token}
   "data": [
     {
       "name": "山田太郎",
-      "email": "example@example.com",
+      "email": "example@example.com"
     }
   ],
   "message": null
@@ -262,7 +267,7 @@ Authorization: Bearer {token}
   "status": "SUCCESS",
   "data":{
       "name": "山田太郎",
-      "email": "example@example.com",
+      "email": "example@example.com"
   },
   "message": null
 }
@@ -277,7 +282,7 @@ Authorization: Bearer {token}
 ```json
 {
   "name": "山田太郎",
-  "email": "example@example.com",
+  "email": "example@example.com" 
 }
 ```
 
@@ -285,6 +290,7 @@ Authorization: Bearer {token}
 ```json
 {
   "status": "SUCCESS",
+  "data": {},
   "message": null
 }
 ```
