@@ -97,7 +97,8 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
 
@@ -117,7 +118,8 @@
   "status": "SUCCESS",
   "data": {
     "token": "jwt-token"
-  }
+  },
+  "message": null
 }
 ```
 
@@ -137,7 +139,8 @@
       "joinningDate": "2000/01/01",
       "status": "ACTIVE"
     }
-  ]
+  ],
+  "message": null
 }
 ```
 
@@ -158,7 +161,8 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
 ## ◼︎PUT /api/employees/{id} (社員情報を更新)
@@ -178,7 +182,8 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
 
@@ -187,7 +192,8 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
 
@@ -199,7 +205,8 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
 
@@ -213,7 +220,8 @@
       "name": "山田太郎",
       "email": "example@example.com",
     }
-  ]
+  ],
+  "message": null
 }
 ```
 
@@ -225,7 +233,8 @@
   "data":{
       "name": "山田太郎",
       "email": "example@example.com",
-  }
+  },
+  "message": null
 }
 ```
 ## ◼︎PUT /api/employees/me (自身の社員情報を更新)
@@ -240,6 +249,7 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "message": null
 }
 ```
