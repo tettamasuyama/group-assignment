@@ -125,6 +125,10 @@
 
 ### ◼︎GET /api/employees (社員一覧を取得・管理者)
 
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
@@ -146,6 +150,10 @@
 
 ### ◼︎POST /api/employees (社員情報を登録)
 
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### リクエスト
 ```json
 {
@@ -166,6 +174,10 @@
 }
 ```
 ## ◼︎PUT /api/employees/{id} (社員情報を更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### リクエスト
 ```json
@@ -189,6 +201,10 @@
 
 ## ◼︎DELETE /api/employees/{id} (社員情報を削除)
 
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
@@ -198,6 +214,10 @@
 ```
 
 ## ◼︎POST /api/employees/import (CSVで一括登録・更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### リクエスト
 ・CSVファイル
@@ -211,6 +231,11 @@
 ```
 
 ## ◼︎GET /api/employees(社員一覧を取得・社員)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
@@ -226,6 +251,11 @@
 ```
 
 ## ◼︎GET /api/employees/me (自身の社員情報を取得)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
@@ -238,6 +268,11 @@
 }
 ```
 ## ◼︎PUT /api/employees/me (自身の社員情報を更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### リクエスト
 ```json
 {
