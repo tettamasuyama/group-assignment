@@ -13,10 +13,10 @@
 
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
-| 3 | /api/employees | GET | 必要 | 全員 | 社員一覧を取得(全ての情報) |
-| 4 | /api/employees/admin | PUT | 必要 | admin | 社員情報を新規登録または既存情報の更新 |
-| 5 | /api/employees/admin | DELETE | 必要 | admin | 社員情報を削除 |
-| 6 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
+| 3 | /api/employees | GET | 必要 | admin | 社員一覧を取得(全ての情報) |
+| 5 | /api/employees/{employeeNumber} | POST | 必要 | admin | 社員情報を新規登録or更新 |
+| 6 | /api/employees/{employeeNumber} | DELETE | 必要 | admin | 社員情報を削除 |
+| 7 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
 
 ---
 
@@ -24,9 +24,9 @@
 
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
-| 7 | /api/employees/employee | GET | 必要 | employee | 社員一覧を取得（氏名・メールアドレスのみ）
-| 8 | /api/employees/employee | GET | 必要 | employee | 自身の情報を取得 |
-| 9 | /api/employees/employee | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
+| 10 | /api/employees | GET | 必要 | employee | 社員一覧を取得（氏名・メールアドレスのみ）
+| 11 | /api/employees/me | GET | 必要 | employee | 自身の情報を取得 |
+| 12 | /api/employees/me | PUT | 必要 | employee | 氏名・メールアドレスのみ更新 |
 
 ---
 
@@ -64,6 +64,7 @@
 ```json
 {
   "status": "ERROR",
+  "data": null,
   "message": "error message"
 }
 ```
@@ -71,7 +72,7 @@
 ### ステータスコード
 | コード | 意味 |
 |-------|------|
-| 200 | 成功(送信・更新) |
+| 200 | 成功(送信・更新・削除) |
 | 201 | 成功(作成) |
 | 400 | 入力エラー |
 | 401 | 認証エラー |
@@ -89,7 +90,6 @@
 {
   "email": "example@example.com",
   "password": "password123",
-  "role": "ADMIN",
 }
 ```
 
@@ -97,13 +97,8 @@
 ```json
 {
   "status": "SUCCESS",
-  "data": {
-    "token": "jwt-token",
-    "user": {
-      "email": "example@example.com",
-      "role": "ADMIN"
-    }
-  }
+  "data": null,
+  "message": null
 }
 ```
 
@@ -123,11 +118,16 @@
   "status": "SUCCESS",
   "data": {
     "token": "jwt-token"
-  }
+  },
+  "message": null
 }
 ```
 
 ### ◼︎GET /api/employees (社員一覧を取得・管理者)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### レスポンス
 ```json
@@ -135,19 +135,24 @@
   "status": "SUCCESS",
   "data": [
     {
-      "id": "11111",
+      "employeeNumber": "11111",
       "name": "山田太郎",
       "email": "example@example.com",
       "department": "営業部",
       "position": "部長",
-      "joinningDate": "2000/01/01",
+      "joiningDate": "2000-01-01",
       "status": "ACTIVE"
     }
-  ]
+  ],
+  "message": null
 }
 ```
 
-### ◼︎PUT /api/employees (社員情報を登録または既存情報の更新)
+## ◼︎PUT /api/employees/{employeeNumber} (社員情報を登録or更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### リクエスト
 ```json
@@ -156,7 +161,7 @@
   "email": "example@example.com",
   "department": "営業部",
   "position": "部長",
-  "joinningDate": "2000/01/01",
+  "joiningDate": "2000-01-01",
   "status": "ACTIVE"
 }
 ```
@@ -164,20 +169,32 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "data": {},
+  "message": null
 }
 ```
 
-## ◼︎DELETE /api/employees/{id} (社員情報を削除)
+## ◼︎DELETE /api/employees/{employeeNumber} (社員情報を削除)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "data": {},
+  "message": null
 }
 ```
 
 ## ◼︎POST /api/employees/import (CSVで一括登録・更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
 
 #### リクエスト
 ・CSVファイル
@@ -185,11 +202,18 @@
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "data": {},
+  "message": null
 }
 ```
 
 ## ◼︎GET /api/employees(社員一覧を取得・社員)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
@@ -197,35 +221,49 @@
   "data": [
     {
       "name": "山田太郎",
-      "email": "example@example.com",
+      "email": "example@example.com"
     }
-  ]
+  ],
+  "message": null
 }
 ```
 
 ## ◼︎GET /api/employees/me (自身の社員情報を取得)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### レスポンス
 ```json
 {
   "status": "SUCCESS",
   "data":{
       "name": "山田太郎",
-      "email": "example@example.com",
-  }
+      "email": "example@example.com"
+  },
+  "message": null
 }
 ```
 ## ◼︎PUT /api/employees/me (自身の社員情報を更新)
+
+#### リクエストヘッダー
+
+Authorization: Bearer {token}
+
 #### リクエスト
 ```json
 {
   "name": "山田太郎",
-  "email": "example@example.com",
+  "email": "example@example.com" 
 }
 ```
 
 #### レスポンス
 ```json
 {
-  "status": "SUCCESS"
+  "status": "SUCCESS",
+  "data": {},
+  "message": null
 }
 ```
