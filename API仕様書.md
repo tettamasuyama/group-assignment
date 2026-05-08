@@ -14,8 +14,7 @@
 | No | エンドポイント | メソッド | 認証 | 権限 | 概要 |
 |----|--------------|----------|------|------|------|
 | 3 | /api/employees | GET | 必要 | admin | 社員一覧を取得(全ての情報) |
-| 4 | /api/employees | POST | 必要 | admin | 社員情報を新規登録 |
-| 5 | /api/employees/{employeeNumber} | PUT | 必要 | admin | 社員情報を更新 |
+| 5 | /api/employees/{employeeNumber} | POST | 必要 | admin | 社員情報を新規登録or更新 |
 | 6 | /api/employees/{employeeNumber} | DELETE | 必要 | admin | 社員情報を削除 |
 | 7 | /api/employees/import | POST | 必要 | admin | CSVで一括登録・更新 |
 
@@ -149,33 +148,7 @@ Authorization: Bearer {token}
 }
 ```
 
-### ◼︎POST /api/employees (社員情報を登録)
-
-#### リクエストヘッダー
-
-Authorization: Bearer {token}
-
-#### リクエスト
-```json
-{
-  "name": "山田太郎",
-  "email": "example@example.com",
-  "department": "営業部",
-  "position": "部長",
-  "joiningDate": "2000-01-01",
-  "status": "ACTIVE"
-}
-```
-
-#### レスポンス
-```json
-{
-  "status": "SUCCESS",
-  "data": {},
-  "message": null
-}
-```
-## ◼︎PUT /api/employees/{employeeNumber} (社員情報を更新)
+## ◼︎PUT /api/employees/{employeeNumber} (社員情報を登録or更新)
 
 #### リクエストヘッダー
 
