@@ -1,5 +1,4 @@
 @startuml
-
 class User
 class Employee
 class AuthController
@@ -14,41 +13,27 @@ class EmployeeRepository
 class AuthRequestDto
 class AuthResponseDto
 class CreateUserRequestDto
-class EmployeeRequestDto
+class EmployeeRequestForAdminDto
+class EmployeeRequestForEmployeeDto
+class EmployeeResponseForAdminDto
+class EmployeeResponseForEmployeeDto
+class ApiResponseDto<T>
 
 enum Role
 enum Department
 enum Position
 enum Status
 
-' --- Controller → Service ---
-AuthController --> AuthService
-EmployeeController --> EmployeeService
+class JwtProvider
+class JwtFilter
+class SecurityConfig
+class AuthException
+class ValidationException
+class FileException
+class GlobalExceptionHandler
 
-' --- Service → Repository ---
-EmployeeService --> EmployeeRepository
 
-' --- Service → Entity ---
-EmployeeService --> Employee
 
-' --- Controller → DTO ---
-AuthController --> AuthRequestDto
-AuthController --> AuthResponseDto
-EmployeeController --> EmployeeRequestDto
-
-' --- Service → DTO ---
-AuthService --> AuthResponseDto
-EmployeeService --> EmployeeRequestDto
-
-' --- Entity → Enum ---
-User --> Role
-Employee --> Department
-Employee --> Position
-Employee --> Status
-
-' --- Repository → Entity ---
-UserRepository --> User
-EmployeeRepository --> Employee
 
 ' クラス定義
 class User {
@@ -78,7 +63,7 @@ class Employee {
   - status: Status
 
   + getId(): Long id
-  + setEmployeeNumber(String employeeNumber)
+  + getEmployeeNumber(): String employeeNumber
   + getName(): String name
   + getEmail(): String email
   + getDepartment(): Department department
@@ -123,39 +108,47 @@ enum Status {
 }
 
 class AuthController {
-  + login(AuthRequestDto req): AuthRequestDto res
-  + register(CreateUserRequestDto req): 201 OK
+  + login(AuthRequestDto req): ApiResponseDto<AuthResponseDto>
 }
 
 class AuthService {
-  + authenticate(String email, String password): AuthResponseDto res
-  + register(CreateUserRequestDto req): AuthResponseDto res
+  + authenticate(String email, String password): AuthResponseDto
+}
+
+class UserController {
+  + createUser(CreateUserRequestDto req): ApiResponseDto<String>
+}
+
+class UserService {
+  + save(CreateUserRequestDto req): String jwt-token
 }
 
 class UserRepository {
-  + findByEmail(String email)
+  + findByEmail(String email): User
 }
 
 class EmployeeController {
-  + getEmployees(Role role): List<Employee> employeeList
-  + getEmployee(String email, Role role): Employee employee
-  + createOrUpdateEmployee(EmployeeRequestDto req): 201 OK / 200 OK
-  + deleteEmployee(String employeeNumber): 200 OK
-  + importEmployees(MultipartFile file): 201 OK
+  + getEmployees(): ApiResponseDto<List<EmployeeResponseForAdminDto>> or ApiResponseDto<List<EmployeeResponseForEmployeeDto>>
+  + getMe(): ApiResponseDto<EmployeeResponseForEmployeeDto>
+  + createOrUpdateEmployee(EmployeeRequestForAdminDto req): ApiResponseDto<Void>
+  + updateMe(EmployeeRequestForEmployeeDto req): ApiResponseDto<Void>
+  + deleteEmployee(String employeeNumber): ApiResponseDto<Void>
+  + importEmployees(MultipartFile file): ApiResponseDto<Void>
 }
 
 class EmployeeService {
-  + findAll(Role role): List<Employee> employeeList
-  + findByEmail(String email, Role role): Employee employee
-  + create(EmployeeRequestDto req): 201 OK
-  + update(EmployeeRequestDto req): 200 OK
-  + delete(String employeeNumber): 200 OK
-  + importCsv(MultipartFile file): 201 OK
+  + findAll(): List<EmployeeResponseForAdminDto> or List<EmployeeResponseForEmployeeDto>
+  + findMe(Long userId): EmployeeResponseForEmployeeDto
+  + create(EmployeeRequestForAdminDto req): void
+  + updateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): void
+  + updateMe(Long userId, EmployeeRequestForEmployeeDto req): void
+  + deleteEmployee(String employeeNumber): void
+  + importEmployees(MultipartFile file): void
 }
 
 class EmployeeRepository {
-  + findByEmail(String email)
-  + findByEmployeeNumber(String employeeNumber)
+  + findByEmail(String email): Employee
+  + findByEmployeeNumber(String employeeNumber): Employee
 } 
 
 ' DTO
@@ -168,11 +161,10 @@ class AuthRequestDto {
 }
 
 class AuthResponseDto {
-  - email: String
-  - role: Role
+  - token: String
 
-  + setEmail(String email)
-  + setRole(Role role)
+  + getToken()
+  + setToken(String token)
 }
 
 class CreateUserRequestDto {
@@ -185,15 +177,7 @@ class CreateUserRequestDto {
   + getRole()
 }
 
-class CreateUserResponseDto {
-  - email: String
-  - role: Role
-
-  + setEmail(String email)
-  + setRole(Role role)
-}
-
-class EmployeeRequestDto {
+class EmployeeRequestForAdminDto {
   - employeeNumber: String
   - name: String
   - email: String
@@ -226,14 +210,22 @@ class EmployeeResponseForAdminDto {
   + getDepartment()
   + getPosition()
   + getHireDate()
-  + getStatus() 
-  + setEmployeeNumber()
-  + setName()
-  + setEmail()
-  + setDepartment()
-  + setPosition()
-  + setHireDate()
-  + setStatus() 
+  + getStatus()
+  + setEmployeeNumber(String employeeNumber)
+  + setName(String name)
+  + setEmail(String email)
+  + setDepartment(Department department)
+  + setPosition(Position position)
+  + setHireDate(LocalDate hireDate)
+  + setStatus(Status status)
+}
+
+class EmployeeRequestForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
 }
 
 class EmployeeResponseForEmployeeDto {
@@ -242,7 +234,34 @@ class EmployeeResponseForEmployeeDto {
 
   + getName()
   + getEmail()
-  + setName()
-  + setEmail()
+  + setName(String name)
+  + setEmail(String email)
 }
+
+class ApiResponseDto<T> {
+  - status: String
+  - data: T
+  - message: String
+
+  + getStatus()
+  + getData()
+  + getMessage()
+  + setStatus(int status)
+  + setData(T data)
+  + setMessage(String message)
+}
+
+class JwtProvider {
+  + generateToken(Long userId, Role role): String
+  + validateToken(String token): boolean
+  + getUserIdFromToken(String token): Long
+}
+
+class JwtFilter
+class SecurityConfig
+class AuthException
+class ValidationException
+class FileException
+class GlobalExceptionHandler
+
 @enduml
