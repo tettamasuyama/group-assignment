@@ -125,7 +125,7 @@ class UserRepository {
 class EmployeeController {
   + getEmployees(): ApiResponseDto<List<EmployeeResponseForAdminDto>> or ApiResponseDto<List<EmployeeResponseForEmployeeDto>>
   + getMe(): ApiResponseDto<EmployeeResponseForEmployeeDto>
-  + createOrUpdateEmployee(EmployeeRequestForAdminDto req): ApiResponseDto<Void>
+  + createOrUpdateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): ApiResponseDto<Void>
   + updateMe(EmployeeRequestForEmployeeDto req): ApiResponseDto<Void>
   + deleteEmployee(String employeeNumber): ApiResponseDto<Void>
   + importEmployees(MultipartFile file): ApiResponseDto<Void>
