@@ -1,0 +1,115 @@
+@startuml
+
+package "dto.request" {
+  class AuthRequestDto
+  class CreateUserRequestDto
+  class EmployeeRequestForAdminDto
+  class EmployeeRequestForEmployeeDto
+}
+package "dto.response" {
+  class AuthResponseDto
+  class EmployeeResponseForAdminDto
+  class EmployeeResponseForEmployeeDto
+  class ApiResponseDto<T>
+}
+
+class AuthRequestDto {
+  - email: String
+  - password: String
+
+  + getEmail()
+  + getPassword()
+}
+
+class AuthResponseDto {
+  - token: String
+
+  + getToken()
+  + setToken(String token)
+}
+
+class CreateUserRequestDto {
+  - email: String
+  - password: String
+  - role: Role
+
+  + getEmail()
+  + getPassword()
+  + getRole()
+}
+
+class EmployeeRequestForAdminDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus()
+}
+
+class EmployeeResponseForAdminDto {
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getEmployeeNumber()
+  + getName()
+  + getEmail()
+  + getDepartment()
+  + getPosition()
+  + getHireDate()
+  + getStatus()
+  + setEmployeeNumber(String employeeNumber)
+  + setName(String name)
+  + setEmail(String email)
+  + setDepartment(Department department)
+  + setPosition(Position position)
+  + setHireDate(LocalDate hireDate)
+  + setStatus(Status status)
+}
+
+class EmployeeRequestForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
+}
+
+class EmployeeResponseForEmployeeDto {
+  - name: String
+  - email: String
+
+  + getName()
+  + getEmail()
+  + setName(String name)
+  + setEmail(String email)
+}
+
+class ApiResponseDto<T> {
+  - status: String
+  - data: T
+  - message: String
+
+  + getStatus()
+  + getData()
+  + getMessage()
+  + setStatus(int status)
+  + setData(T data)
+  + setMessage(String message)
+}
+
+@enduml
