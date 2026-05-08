@@ -1,0 +1,24 @@
+@startuml
+package "config.security" {
+  class JwtProvider
+  class JwtFilter
+  class SecurityConfig
+}
+
+class JwtProvider {
+  + setKey: void
+  + getClaims(String token): Claims
+  + generateToken(Long userId, Role role): String
+  + validateToken(String token): boolean
+  + getUserId(String token): Long
+}
+
+class JwtFilter {
+  + doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain): void
+}
+
+class SecurityConfig {
+  + securityFilterChain(HttpSecurity http): SecurityFilterChain
+  + passwordEncoder(): PasswordEncoder
+}
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+
+package "exception" {
+  class AuthException
+  class ValidationException
+  class FileException
+  class GlobalExceptionHandler
+}
+
+class AuthException {
+  + AuthException(String message)
+}
+
+class ValidationException {
+  + ValidationException(String message)
+}
+
+class FileException {
+  + FileException(String message)
+}
+
+class GlobalExceptionHandler {
+  + handleAuthException(AuthException e): ApiResponseDto<Void>
+  + handleValidationException(ValidationException e): ApiResponseDto<Void>
+  + handleFileException(FileException e): ApiResponseDto<Void>
+  + handleException(Exception e): ApiResponseDto<Void>
+}
+
+@enduml

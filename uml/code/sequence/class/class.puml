@@ -1,0 +1,148 @@
+@startuml
+  class AuthController
+  class UserController
+  class EmployeeController
+  class AuthService
+  class UserService
+  class EmployeeService
+  class UserRepository
+  class EmployeeRepository
+  class User
+  class Employee
+
+  enum Role
+  enum Department
+  enum Position
+  enum Status
+
+' クラス関係
+AuthController --> AuthService
+UserController --> UserService
+EmployeeController --> EmployeeService
+AuthService --> UserRepository
+UserService --> UserRepository
+EmployeeService --> EmployeeRepository
+UserRepository --> User
+EmployeeRepository --> Employee
+
+User --> Role
+Employee --> Department
+Employee --> Position
+Employee --> Status
+
+' クラス定義
+class User {
+  - id: Long
+  - email: String
+  - password: String
+  - role: Role
+
+  + getId(): Long id
+  + getEmail(): String email
+  + getPassword(): String password
+  + getRole(): Role role
+  + setId(Long id)
+  + setEmail(String email)
+  + setPassword(String password)
+  + setRole(Role role)
+}
+
+class Employee {
+  - id: Long
+  - employeeNumber: String
+  - name: String
+  - email: String
+  - department: Department
+  - position: Position
+  - hireDate: LocalDate
+  - status: Status
+
+  + getId(): Long id
+  + getEmployeeNumber(): String employeeNumber
+  + getName(): String name
+  + getEmail(): String email
+  + getDepartment(): Department department
+  + getPosition(): Position position
+  + getHireDate(): LocalDate hireDate
+  + getStatus(): Status status
+  + setId(Long id)
+  + setEmployeeNumber(String employeeNumber)
+  + setName(String name)
+  + setEmail(String email)
+  + setDepartment(Department department)
+  + setPosition(Position position)
+  + setHireDate(LocalDate hireDate)
+  + setStatus(Status status)
+}
+
+' 列挙型定義
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum Department {
+  GENERAL("総務"),
+  HR("人事"),
+  PLANNING("企画"),
+  SALES("営業");
+}
+
+enum Position {
+  STAFF("一般社員"),
+  LEADER("主任"),
+  MANAGER("課長"),
+  DIRECTOR("部長"),
+  EXECUTIVE("本部長"),
+  CEO("社長");
+}
+
+enum Status {
+  ACTIVE
+  RETIRED
+}
+
+class AuthController {
+  + login(AuthRequestDto req): ApiResponseDto<AuthResponseDto>
+}
+
+class AuthService {
+  + authenticate(String email, String password): AuthResponseDto
+}
+
+class UserController {
+  + createUser(CreateUserRequestDto req): ApiResponseDto<String>
+}
+
+class UserService {
+  + save(CreateUserRequestDto req): String jwt-token
+}
+
+class UserRepository {
+  + findByEmail(String email): User
+}
+
+class EmployeeController {
+  + getEmployees(): ApiResponseDto<List<EmployeeResponseForAdminDto>> or ApiResponseDto<List<EmployeeResponseForEmployeeDto>>
+  + getMe(): ApiResponseDto<EmployeeResponseForEmployeeDto>
+  + createOrUpdateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): ApiResponseDto<Void>
+  + updateMe(EmployeeRequestForEmployeeDto req): ApiResponseDto<Void>
+  + deleteEmployee(String employeeNumber): ApiResponseDto<Void>
+  + importEmployees(MultipartFile file): ApiResponseDto<Void>
+}
+
+class EmployeeService {
+  + findAll(): List<EmployeeResponseForAdminDto> or List<EmployeeResponseForEmployeeDto>
+  + findMe(Long userId): EmployeeResponseForEmployeeDto
+  + create(EmployeeRequestForAdminDto req): void
+  + updateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): void
+  + updateMe(Long userId, EmployeeRequestForEmployeeDto req): void
+  + deleteEmployee(String employeeNumber): void
+  + importEmployees(MultipartFile file): void
+}
+
+class EmployeeRepository {
+  + findByEmail(String email): Employee
+  + findByEmployeeNumber(String employeeNumber): Employee
+} 
+@enduml
