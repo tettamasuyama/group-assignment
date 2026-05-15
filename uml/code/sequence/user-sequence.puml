@@ -1,0 +1,53 @@
+@startuml
+
+participant User
+participant Frontend
+participant UserController
+participant UserService
+participant UserRepository
+participant AuthController
+participant AuthService
+participant JwtProvider
+participant JwtFilter
+participant SecurityContextHolder
+participant Authentication
+participant UsernamePasswordAuthenticationToken
+participant GlobalExceptionHandler
+participant ApiResponseDto
+database DB
+
+== register ==
+User -> UserController : POST api/auth/register(CreateUserRequestDto req)
+
+alt email or password is empty
+  UserController --> GlobalExceptionHandler : throw ValidationException
+  GlobalExceptionHandler --> User : 400 "ERROR"  ApiResponseDto<String> "メールアドレス、パスワードの両方をご入力ください。"
+
+else email is not valid
+  UserController --> GlobalExceptionHandler : throw ValidationException
+  GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<String> "正しいメールアドレスをご入力ください。"
+
+else OK
+  UserController -> UserService : register(createUserRequestDto req)
+  UserService --> UserRepository : findByEmail(email)
+  UserRepository -> DB : SELECT * FROM users WHERE email=?
+
+alt user already exists
+  DB --> UserRepository : user data
+  UserRepository --> UserService : user
+  UserService --> GlobalExceptionHandler : throw ValidationException
+  GlobalExceptionHandler --> User : 409 ERROR
+
+  else OK
+    DB --> UserRepository : not exists
+    UserRepository --> UserService : no data
+    UserService -> UserRepository : save(createUserRequestDto req)
+    UserRepository -> DB : INSERT INTO users (email, password, role) VALUES ($1, $2, $3)
+    DB --> UserRepository : OK
+    UserRepository --> UserService : OK
+    UserService --> UserController : OK
+    UserController --> User : "SUCCESS" ApiResponseDto<String> "アカウントの作成が完了しました。"
+  end
+end
+
+@enduml
