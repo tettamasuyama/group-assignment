@@ -77,6 +77,7 @@
 | 400 | 入力エラー |
 | 401 | 認証エラー |
 | 404 | データなし |
+| 409 | データ重複 |
 | 500 | サーバーエラー |
 
 ---
@@ -90,6 +91,7 @@
 {
   "email": "example@example.com",
   "password": "password123",
+  "message": "アカウントの作成が完了しました。"
 }
 ```
 
@@ -204,7 +206,7 @@ Authorization: Bearer {token}
 {
   "status": "SUCCESS",
   "data": {},
-  "message": null
+  "message": "読み取りが完了しました。"
 }
 ```
 
