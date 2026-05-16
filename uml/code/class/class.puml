@@ -126,7 +126,7 @@ class EmployeeController {
   + getEmployees(): ApiResponseDto<List<EmployeeResponseForAdminDto>> or ApiResponseDto<List<EmployeeResponseForEmployeeDto>>
   + getMe(): ApiResponseDto<EmployeeResponseForEmployeeDto>
   + createOrUpdateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): ApiResponseDto<Void>
-  + updateMe(EmployeeRequestForEmployeeDto req): ApiResponseDto<Void>
+  + updateMe(EmployeeRequestForEmployeeDto req): ApiResponseDto<Employee>
   + deleteEmployee(String employeeNumber): ApiResponseDto<Void>
   + importEmployees(MultipartFile file): ApiResponseDto<Void>
 }
@@ -134,9 +134,9 @@ class EmployeeController {
 class EmployeeService {
   + findAll(): List<EmployeeResponseForAdminDto> or List<EmployeeResponseForEmployeeDto>
   + findMe(Long userId): EmployeeResponseForEmployeeDto
-  + create(EmployeeRequestForAdminDto req): void
+  + create(String employeeNumber, EmployeeRequestForAdminDto req): void
   + updateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): void
-  + updateMe(Long userId, EmployeeRequestForEmployeeDto req): void
+  + updateMe(Long userId, EmployeeRequestForEmployeeDto req): Employee 
   + deleteEmployee(String employeeNumber): void
   + importEmployees(MultipartFile file): void
 }
