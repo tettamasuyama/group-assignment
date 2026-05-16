@@ -5,6 +5,9 @@ package "exception" {
   class ValidationException
   class FileException
   class GlobalExceptionHandler
+  class DataIntegrityViolationException
+  class ConflictException
+  class NotFoundException
 }
 
 class AuthException {
@@ -19,11 +22,25 @@ class FileException {
   + FileException(String message)
 }
 
+class DataIntegrityViolationException {
+  + DataIntegrityViolationException(String message)
+}
+
+class ConflictException {
+  + ConflictException(String message)
+}
+
+class NotFoundException {
+  + NotFoundException(String message)
+}
+
 class GlobalExceptionHandler {
   + handleAuthException(AuthException e): ApiResponseDto<Void>
   + handleValidationException(ValidationException e): ApiResponseDto<Void>
   + handleFileException(FileException e): ApiResponseDto<Void>
   + handleException(Exception e): ApiResponseDto<Void>
+  +handleclassDataIntegrityViolationException : ApiResponseDto<Void>
+  + handleConflictException : ApiResponseDto<Void>
+  + handleNotFoundException : ApiResponseDto<Void>
 }
-
 @enduml

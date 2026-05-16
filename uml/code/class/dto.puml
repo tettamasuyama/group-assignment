@@ -39,7 +39,6 @@ class CreateUserRequestDto {
 }
 
 class EmployeeRequestForAdminDto {
-  - employeeNumber: String
   - name: String
   - email: String
   - department: Department
@@ -47,7 +46,6 @@ class EmployeeRequestForAdminDto {
   - hireDate: LocalDate
   - status: Status
 
-  + getEmployeeNumber()
   + getName()
   + getEmail()
   + getDepartment()
