@@ -5,89 +5,338 @@ participant EmployeeService
 participant EmployeeRepository
 participant JwtProvider
 participant JwtFilter
+participant SecurityContextHolder
+participant Authentication
+participant UsernamePasswordAuthenticationToken
+participant UserRepository
+participant EmployeeResponseForAdminDto
+participant EmployeeResponseForEmployeeDto
+participant ApiResponseDto
+participant GlobalExceptionHandler
+participant FilterChain
 database DB
 
 == get employeeList ==
-User -> JwtFilter : GET api/employees(role)
+User -> JwtFilter : GET api/employees Authorization: Bearer <JWT>
 JwtFilter -> JwtProvider : validateToken(token)
-JwtProvider --> JwtFilter : validated
-JwtFilter --> EmployeeController : role
 
-EmployeeController -> EmployeeService : findAll(role)
-EmployeeService -> EmployeeRepository : findAll()
-EmployeeRepository -> DB : SELECT * FROM employees
-DB --> EmployeeRepository : employeeList
-EmployeeRepository --> EmployeeService : employeeList
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : getEmployees()  
 
-alt role == ADMIN
-  EmployeeService --> EmployeeController : 200 OK + List<EmployeeResponseForAdminDto> employeeList
-  EmployeeController --> User : 200 OK + employeeList
-else role == EMPLOYEE
-  EmployeeService --> EmployeeController : 200 OK + List<EmployeeResponseForEmployeeDto> employeeList
-  EmployeeController --> User : 200 OK + employeeList (only active employees)
+  EmployeeController -> EmployeeService : findAll()
+  ' roleを取得
+  EmployeeService -> SecurityContextHolder : getAuthentication()
+  SecurityContextHolder --> EmployeeService : Authentication
+  EmployeeService -> Authentication : getPrincipal()
+  Authentication --> EmployeeService : userId
+  EmployeeService -> UserRepository : findById(userId)
+  UserRepository -> DB : SELECT * FROM users WHERE id=?
+  DB --> UserRepository : user data
+  UserRepository --> EmployeeService : user
+  ' リストを取得
+  EmployeeService -> EmployeeRepository : findAll()
+  EmployeeRepository -> DB : SELECT * FROM employees
+  DB --> EmployeeRepository : employeeList
+
+  alt user.role == ADMIN
+    EmployeeService --> EmployeeController : List<EmployeeResponseForAdminDto> employeeList
+    EmployeeController --> User : 200 "SUCCESS" +  ApiResponseDto<List<EmployeeResponseForAdminDto>> 
+
+  else user.role == EMPLOYEE
+    EmployeeService --> EmployeeController : List<EmployeeResponseForEmployeeDto> employeeList
+    EmployeeController --> User : 200 "SUCCESS" + ApiResponseDto<List<EmployeeResponseForEmployeeDto>>
+  end
 end
 
 == create or update employee ==
-User -> JwtFilter : PUT api/employees(employeeRequestDto)
+User -> JwtFilter : PUT api/employees/{employeeNumber} Authorization: Bearer <JWT>
 JwtFilter -> JwtProvider : validateToken(token)
-JwtProvider --> JwtFilter : validated
-JwtFilter --> EmployeeController : employeeRequestDto
 
-EmployeeController -> EmployeeService : createOrUpdateEmployee(employeeRequestDto)
-EmployeeService -> EmployeeRepository : upsert(employeeRequestDto)
-EmployeeRepository -> DB : INSERT ... ON CONFLICT DO UPDATE
-DB --> EmployeeRepository : OK
-EmployeeRepository --> EmployeeService : OK
-EmployeeService --> EmployeeController : 200 OK
-EmployeeController --> User : 200 OK
-end
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
 
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> CustomUserPrincipal : new(userId)
+  CustomUserPrincipal --> JwtFilter : principal
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : createOrUpdateEmployee(employeeNumber, req)
 
-== delete employee ==
-User -> JwtFilter : DELETE api/employees/admin
-JwtFilter -> JwtProvider : validateToken(token)
-JwtProvider --> JwtFilter : validated
-JwtFilter --> EmployeeController : deleteEmployee(employeeNumber)
-EmployeeController -> EmployeeService : deleteEmployee(employeeNumber)
-EmployeeService -> EmployeeRepository : delete(employeeNumber)
-EmployeeRepository -> DB : DELETE FROM employees WHERE employee_number = ...
-DB --> EmployeeRepository : affectedRows = 0 or 1
+  alt employeeNumber invalid
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User :"ERROR" 400 + ApiResponseDto<Void>
 
-alt affectedRows == 1
-  → 200 OK
-else
-  → 404 Not Found
-end
+  else requestDto is empty
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User :"ERROR" 400 + ApiResponseDto<Void> "何も処理は行われませんでした。"
 
-== import employee ==
-User -> JwtFilter : POST api/employees/import(file)
-JwtFilter -> JwtProvider : validateToken(token)
-JwtProvider --> JwtFilter : validated
-JwtFilter --> EmployeeController : file
-alt invalid file format
-  EmployeeController --> User : 400 Bad Request
-else valid file format
-  EmployeeController -> EmployeeService : importEmployees(file)
-  EmployeeService -> EmployeeRepository : batchUpsert(employees)
-  EmployeeRepository -> DB : BEGIN TRANSACTION
-  loop each row
-    EmployeeRepository -> DB : INSERT ... ON CONFLICT DO UPDATE
-    alt error
+  else email is not null but it is not valid
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User :"ERROR" 400 + ApiResponseDto<Void> "正しいメールアドレスをご入力ください。"
+
+  else OK
+    EmployeeController -> EmployeeService : upsertEmployee(employeeNumber, req)
+
+    EmployeeService -> EmployeeRepository :　upsert(employeeNumber, req)
+
+    EmployeeRepository -> DB : INSERT ... ON CONFLICT ... DO UPDATE
+
+    alt email already exists 
       DB --> EmployeeRepository : error
-      EmployeeRepository -> DB : ROLLBACK
-      EmployeeRepository --> EmployeeService : Exception
-      EmployeeService --> EmployeeController : Exception
-      EmployeeController --> User : 400 or 409
-      break
+      EmployeeRepository --> EmployeeService : error
+      EmployeeService --> EmployeeController : error
+      EmployeeController --> GlobalExceptionHandler : throws ConflictException
+      --> User : 409 "ERROR" ApiResponseDto<Void>
+
     else success
       DB --> EmployeeRepository : OK
+      EmployeeRepository --> EmployeeService : OK
+      EmployeeService --> EmployeeController : OK
+      EmployeeController --> User : 200 or 201 "SUCCESS" ApiResponseDto<Void> 
     end
   end
-  alt all success
-    EmployeeRepository -> DB : COMMIT
-    EmployeeRepository --> EmployeeService : success
-    EmployeeService --> EmployeeController : 200 OK
-    EmployeeController --> User : 200 OK
+end
+
+== delete employee ==
+User -> JwtFilter : DELETE api/employees/{employeeNumber} Authorization: Bearer <JWT>
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
+
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> CustomUserPrincipal : new(userId)
+  CustomUserPrincipal --> JwtFilter : principal
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : deleteEmployee(employeeNumber)
+
+  alt employeeNumber invalid
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User :400 "ERROR" + ApiResponseDto<Void>
+
+  else OK
+    EmployeeController -> EmployeeService : deleteEmployee(employeeNumber)
+    EmployeeService -> EmployeeRepository : deleteByEmployeeNumber(employeeNumber)
+    EmployeeRepository -> DB : DELETE FROM employees WHERE employee_number=?
+    alt employee not found
+      DB --> EmployeeRepository : not exists
+      EmployeeRepository --> EmployeeService : not exists
+      EmployeeService --> EmployeeController : not exists
+      EmployeeController --> GlobalExceptionHandler : throws NotFoundException
+      GlobalExceptionHandler --> User : 404 "ERROR" ApiResponseDto<Void>
+    else OK
+      DB --> EmployeeRepository : OK
+      EmployeeRepository --> EmployeeService : OK
+      EmployeeService --> EmployeeController : OK
+      EmployeeController --> User : 200 "SUCCESS" ApiResponseDto<Void>
+    end
+  end
+end
+
+== import csv ==
+User -> JwtFilter : POST api/employees/import Authorization: Bearer <JWT>
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
+
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> CustomUserPrincipal : new(userId)
+  CustomUserPrincipal --> JwtFilter : principal
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : importEmployees(MultipartFile file)
+
+  alt file is empty
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void> "ファイルを読み込めませんでした。正しいファイルを選択してください。"
+  else file extension is invalid
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>　"ファイルを読み込めませんでした。正しいファイルを選択してください。"
+  else OK
+    EmployeeController -> EmployeeService : importEmployees(file)
+    EmployeeService -> EmployeeService : parse csv file
+
+    alt invalid csv format
+      EmployeeService --> GlobalExceptionHandler : throw ValidationException
+      GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>
+
+    else parse success
+      EmployeeService --> EmployeeService : employees
+    end
+
+    loop each employee
+      EmployeeService -> EmployeeRepository : upsert(employee)
+      EmployeeRepository -> DB : INSERT ... ON CONFLICT(employee_id) DO UPDATE
+
+      alt duplicate email conflict
+        DB --> EmployeeRepository : error
+        EmployeeRepository --> EmployeeService : error
+        EmployeeService --> GlobalExceptionHandler : throw ConflictException
+        GlobalExceptionHandler --> User : 409 "ERROR" ApiResponseDto<Void>
+
+      else success
+        DB --> EmployeeRepository : OK
+        EmployeeRepository --> EmployeeService : OK
+      end
+    end
+
+    EmployeeService --> EmployeeController : OK
+    EmployeeController --> User : 200 "SUCCESS" ApiResponseDto<Void>
+end  
+
+== get me ==
+User -> JwtFilter : GET api/employees/me Authorization: Bearer <JWT>
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
+
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> CustomUserPrincipal : new(userId)
+  CustomUserPrincipal --> JwtFilter : principal
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : getMe()
+
+  EmployeeController -> SecurityContextHolder : getAuthentication
+  SecurityContextHolder --> EmployeeController : auth
+  EmployeeController -> EmployeeController : auth.getPrincipal()
+  EmployeeController --> EmployeeController : userId
+  EmployeeController-> EmployeeService : findMe(userId)
+  EmployeeService -> UserRepository : findById(userId)
+  UserRepository -> DB : SELECT * FROM users WHERE id=?
+  
+  alt user not found
+    DB --> UserRepository : error
+    UserRepository --> EmployeeService : error
+    EmployeeService --> GlobalExceptionHandler : throw NotFoundException
+    GlobalExceptionHandler --> User : 404 "ERROR" ApiResponseDto<Void>
+
+  else OK
+    DB --> UserRepository : user
+    UserRepository --> EmployeeService : user
+    EmployeeService --> EmployeeRepository : findByEmail(user.email)
+    EmployeeRepository -> DB : SELECT * FROM employees WHERE email=?
+
+    alt email not found
+      DB --> EmployeeRepository : error
+      EmployeeRepository --> EmployeeService : error
+      EmployeeService --> GlobalExceptionHandler : throw NotFoundException
+      GlobalExceptionHandler --> User : 404 "ERROR" ApiResponseDto<Void>
+    else OK
+      DB --> EmployeeRepository : employee
+      EmployeeRepository --> EmployeeService : employee
+      EmployeeService --> EmployeeService : set  employee into EmployeeResponseForEmployeeDto
+      EmployeeService --> EmployeeController : EmployeeResponseForEmployeeDto
+      EmployeeController --> User : 200 "SUCCESS" ApiResponseDto<EmployeeResponseForEmployeeDto>
+    end
+  end
+end  
+
+=== update me === 
+User -> JwtFilter : PUT api/employees/me Authorization: Bearer <JWT>
+JwtFilter -> JwtProvider : validateToken(token)
+
+alt token invalid
+  JwtProvider --> JwtFilter : false
+  JwtFilter -> GlobalExceptionHandler : throw AuthException
+  GlobalExceptionHandler --> User : 401 Unauthorized
+
+else valid
+  JwtProvider --> JwtFilter : true
+  JwtFilter -> JwtProvider : getUserId(token)
+  JwtProvider --> JwtFilter : userId
+  JwtFilter -> CustomUserPrincipal : new(userId)
+  CustomUserPrincipal --> JwtFilter : principal
+  JwtFilter -> UsernamePasswordAuthenticationToken : new(principal,null,authorities)
+  UsernamePasswordAuthenticationToken --> JwtFilter : auth
+  JwtFilter -> SecurityContextHolder : setAuthentication(auth)
+  JwtFilter -> FilterChain : doFilter(req, res)
+  FilterChain -> EmployeeController : updateMe(EmployeeRequestForEmployeeDto)
+
+  alt username is invalid
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void>
+
+  else email is invalid 
+    EmployeeController --> GlobalExceptionHandler : throw ValidationException
+    GlobalExceptionHandler --> User : 400 "ERROR" ApiResponseDto<Void> "正しいメールアドレスをご入力ください。"
+
+  else OK 
+    EmployeeController -> EmployeeService : updateMe(EmployeeRequestForEmployeeDto)
+    EmployeeService -> TransactionManager : begin
+
+    EmployeeService -> EmployeeRepository : update(employeeNumber, name, email)
+    EmployeeRepository -> DB :  UPDATE ...  RETURNING *
+
+    alt email is exists
+      DB --> EmployeeRepository : error
+      EmployeeRepository --> EmployeeService : error
+      EmployeeService --> GlobalExceptionHandler : throw ConflictException
+      GlobalExceptionHandler --> User : 409 "ERROR" ApiResponseDto<Void>
+
+    else OK
+      DB --> EmployeeRepository : OK Employee
+      EmployeeRepository --> EmployeeService : OK Employee
+      EmployeeService --> UserRepository : update(userId, employee.number, employee.email)
+      UserRepository -> DB : UPDATE ... WHERE user_id?
+
+      alt email is exists
+        DB --> UserRepository : error
+        UserRepository --> EmployeeService : error
+        EmployeeService -> TransactionManager : rollback
+        EmployeeService --> GlobalExceptionHandler : throw ConflictException
+        GlobalExceptionHandler --> User : 409 "ERROR" ApiResponseDto<Void>
+        
+      else OK
+        DB --> UserRepository : OK
+        UserRepository --> EmployeeService : OK
+        EmployeeService --> EmployeeController : EmployeeResponseForEmployeeDto(employee.name, employee.email)
+        EmployeeService -> TransactionManager : commit
+        EmployeeController --> User : 200 "SUCCESS" ApiResponseDto<EmployeeResponseForEmployeeDto>
+      end
+    end
   end
 end
 @enduml
