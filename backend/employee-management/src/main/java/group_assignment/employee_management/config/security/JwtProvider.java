@@ -35,10 +35,9 @@ public class JwtProvider {
         .getBody();
   }
 
-  public String generateToken(Long userId, String role) {
+  public String generateToken(Long userId) {
     return Jwts.builder()
       .setSubject(userId.toString())
-      .claim("role", role)
       .setIssuedAt(new Date())
       .setExpiration(new Date(System.currentTimeMillis() + expiration))
       .signWith(secretKey)
@@ -58,25 +57,10 @@ public class JwtProvider {
     try {
       return Long.parseLong(getClaims(token).getSubject());
     } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid userId format in token");
+      throw new JwtException("Invalid userId format");
     } catch (Exception e) {
       return null;
     }
   }
 
-  public String getEmail(String token) {
-    try {
-      return getClaims(token).get("email", String.class);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  public String getRole(String token) {
-    try {
-      return getClaims(token).get("role", String.class);
-    } catch (Exception e) {
-      return null;
-    }
-  }
 }
