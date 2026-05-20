@@ -1,13 +1,10 @@
 package group_assignment.employee_management.dto;
-
-import java.util.List;
-
 public class ApiResponseDto<T> {
   private  String status;
-  private  List<T> data;
+  private  T data;
   private  String message;
 
-  public ApiResponseDto(String status, List<T> data, String message) {
+  public ApiResponseDto(String status, T data, String message) {
     this.status = status;
     this.data = data;
     this.message = message;
@@ -17,7 +14,7 @@ public class ApiResponseDto<T> {
     return status;
   }
 
-  public List<T> getData() {
+  public T getData() {
     return data;
   }
 
@@ -29,7 +26,7 @@ public class ApiResponseDto<T> {
     this.status = status;
   }
   
-  public void setData(List<T> data) {
+  public void setData(T data) {
     this.data = data;
   }
 
