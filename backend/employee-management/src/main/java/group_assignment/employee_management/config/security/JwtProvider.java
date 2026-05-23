@@ -4,9 +4,11 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import group_assignment.employee_management.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
