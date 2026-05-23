@@ -3,3 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/owner
     username: owner
     password: owner
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

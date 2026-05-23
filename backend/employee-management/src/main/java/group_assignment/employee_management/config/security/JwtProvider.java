@@ -25,6 +25,7 @@ public class JwtProvider {
 
   @PostConstruct
   public void setKey() {
+    System.out.println("secret = " + secret);
     secretKey = Keys.hmacShaKeyFor(secret.getBytes());
   }
 

@@ -1,5 +1,4 @@
-package group_assignment.controller;
-d
+package group_assignment.employee_management.controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,7 +7,7 @@ import group_assignment.employee_management.dto.ApiResponseDto;
 import group_assignment.employee_management.dto.AuthRequestDto;
 import group_assignment.employee_management.dto.AuthResponseDto;
 import group_assignment.employee_management.service.AuthService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.ValidationException;
 
 @RestController
