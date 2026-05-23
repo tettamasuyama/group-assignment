@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -17,10 +19,13 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank(message = "メールアドレス必須")
   @Column(nullable =false, unique = true)
   private String email;
 
+  @NotBlank(message = "パスワード必須")
   @Column(nullable = false)
+  @Size(min = 8, max = 64)
   private String password;
 
   @Enumerated(EnumType.STRING)
