@@ -9,6 +9,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Employee {
@@ -20,9 +23,15 @@ public class Employee {
   private String employeeNumber;
 
   @Column(nullable = false)
+  @Size(max = 50, message = "50文字以内")
+  @Pattern(
+    regexp = "^(?!\\s)[ぁ-んァ-ヶ一-龯a-zA-Z\\s]+$"
+  )
   private String name;
 
   @Column(nullable = false, unique = true)
+  @Email
+  @Size(max = 254)
   private String email;
   
   @Column(nullable = false)
