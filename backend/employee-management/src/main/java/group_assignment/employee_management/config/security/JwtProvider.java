@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import group_assignment.employee_management.entity.Role;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -26,6 +27,7 @@ public class JwtProvider {
 
   @PostConstruct
   public void setKey() {
+    System.out.println("secret = " + secret);
     secretKey = Keys.hmacShaKeyFor(secret.getBytes());
   }
 
@@ -37,10 +39,9 @@ public class JwtProvider {
         .getBody();
   }
 
-  public String generateToken(Long userId,Role role) {
+  public String generateToken(Long userId) {
     return Jwts.builder()
       .setSubject(userId.toString())
-      .claim("role", role)
       .setIssuedAt(new Date())
       .setExpiration(new Date(System.currentTimeMillis() + expiration))
       .signWith(secretKey)
@@ -60,25 +61,10 @@ public class JwtProvider {
     try {
       return Long.parseLong(getClaims(token).getSubject());
     } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid userId format in token");
+      throw new JwtException("Invalid userId format");
     } catch (Exception e) {
       return null;
     }
   }
 
-  public String getEmail(String token) {
-    try {
-      return getClaims(token).get("email", String.class);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  public Role getRole(String token) {
-    try {
-      return getClaims(token).get("role", Role.class);
-    } catch (Exception e) {
-      return null;
-    }
-  }
 }
