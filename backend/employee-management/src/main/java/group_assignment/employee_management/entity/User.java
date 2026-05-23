@@ -1,4 +1,4 @@
-package group_assignment.entity;
+package group_assignment.employee_management.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
