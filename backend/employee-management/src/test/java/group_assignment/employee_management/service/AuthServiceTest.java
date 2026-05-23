@@ -16,6 +16,7 @@ import group_assignment.employee_management.config.security.JwtProvider;
 import group_assignment.employee_management.entity.Role;
 import group_assignment.employee_management.entity.User;
 import group_assignment.employee_management.repository.user.UserRepository;
+import group_assignment.employee_management.service.auth.AuthService;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

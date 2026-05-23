@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import group_assignment.employee_management.dto.ApiResponseDto;
+import group_assignment.employee_management.dto.common.ApiResponseDto;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
