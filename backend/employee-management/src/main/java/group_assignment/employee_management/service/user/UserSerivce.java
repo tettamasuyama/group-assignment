@@ -4,7 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import group_assignment.employee_management.dto.common.ApiResponseDto;
-import group_assignment.employee_management.dto.user.CreateUserRequest;
+import group_assignment.employee_management.dto.user.CreateUserRequestDto;
 import group_assignment.employee_management.entity.User;
 import group_assignment.employee_management.repository.user.UserRepository;
 import jakarta.validation.ValidationException;
@@ -19,7 +19,7 @@ public class UserSerivce {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public ApiResponseDto<Void> save(CreateUserRequest req) {
+  public void save(CreateUserRequestDto req) {
     if(userRepository.findByEmail(req.getEmail()) != null) {
       throw new ValidationException();
     }
@@ -33,7 +33,5 @@ public class UserSerivce {
     );
 
     userRepository.save(user);
-
-    return new ApiResponseDto<>("SUCCESS", null, "アカウントの作成が完了しました。");
   }
 }

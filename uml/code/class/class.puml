@@ -115,7 +115,7 @@ class UserController {
 }
 
 class UserService {
-  + save(CreateUserRequestDto req): String jwt-token
+  + save(CreateUserRequestDto req): void
 }
 
 class UserRepository {
