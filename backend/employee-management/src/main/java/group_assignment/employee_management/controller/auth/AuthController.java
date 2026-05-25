@@ -9,6 +9,8 @@ import group_assignment.employee_management.dto.common.ApiResponseDto;
 import group_assignment.employee_management.service.auth.AuthService;
 
 import org.springframework.web.bind.annotation.RequestBody;
+
+import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 
 @RestController
@@ -21,7 +23,7 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ApiResponseDto<AuthResponseDto> login(@RequestBody AuthRequestDto req) {
+  public ApiResponseDto<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto req) {
     if(
       req.getEmail() == null || req.getEmail().isBlank() ||
       req.getPassword() == null || req.getPassword().isBlank()

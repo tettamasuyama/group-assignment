@@ -46,7 +46,7 @@ alt user already exists
     DB --> UserRepository : OK
     UserRepository --> UserService : OK
     UserService --> UserController : OK
-    UserController --> User : "SUCCESS" ApiResponseDto<String> "アカウントの作成が完了しました。"
+    UserController --> User : "SUCCESS" ApiResponseDto<Void> "アカウントの作成が完了しました。"
   end
 end
 
