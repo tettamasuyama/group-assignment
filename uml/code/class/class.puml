@@ -111,7 +111,7 @@ class AuthService {
 }
 
 class UserController {
-  + createUser(CreateUserRequestDto req): ApiResponseDto<String>
+  + createUser(CreateUserRequestDto req): AuthResponseDto
 }
 
 class UserService {
