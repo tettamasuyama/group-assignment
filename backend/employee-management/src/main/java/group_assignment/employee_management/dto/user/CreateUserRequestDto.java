@@ -8,14 +8,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class CreateUserRequest {
+public class CreateUserRequestDto {
 
-  @NotBlank(message = "メールアドレス必須")
-  @Email(message = "メール形式が不正")
+  @NotBlank(message = "メールアドレス、パスワードの両方をご入力ください。")
+  @Email(message = "正しいメールアドレスをご入力ください。")
   @Size(max = 254)
   private String email;
 
-  @NotBlank(message = "パスワード必須")
+  @NotBlank(message = "メールアドレス、パスワードの両方をご入力ください。")
   @Size(min = 8, max = 64)
   private String password;
 
@@ -23,7 +23,7 @@ public class CreateUserRequest {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  public CreateUserRequest(String email, String password, Role role) {
+  public CreateUserRequestDto(String email, String password, Role role) {
     this.email = email;
     this.password = password;
     this.role = role;

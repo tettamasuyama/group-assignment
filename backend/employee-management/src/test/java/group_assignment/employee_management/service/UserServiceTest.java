@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import group_assignment.employee_management.dto.common.ApiResponseDto;
-import group_assignment.employee_management.dto.user.CreateUserRequest;
+import group_assignment.employee_management.dto.user.CreateUserRequestDto;
 import group_assignment.employee_management.entity.Role;
 import group_assignment.employee_management.entity.User;
 import group_assignment.employee_management.repository.user.UserRepository;
@@ -33,7 +33,7 @@ public class UserServiceTest {
     String password = "password123";
     Role role = Role.ADMIN;
 
-    CreateUserRequest req = new CreateUserRequest(email, password, role);
+    CreateUserRequestDto req = new CreateUserRequestDto(email, password, role);
 
     when(passwordEncoder.encode(password))
     .thenReturn("encodedPassword");
