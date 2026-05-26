@@ -9,7 +9,6 @@ import group_assignment.employee_management.dto.common.ApiResponseDto;
 import group_assignment.employee_management.dto.user.CreateUserRequestDto;
 import group_assignment.employee_management.service.user.UserSerivce;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 
 @RestController
 @RequestMapping("api/auth/register")
@@ -20,9 +19,8 @@ public class UserController {
     this.userSerivce = userSerivce;
   }
 
-  public ApiResponseDto<String> createUser(@Valid @RequestBody CreateUserRequestDto req) {
-    User new User = userSerivce.save(req);
-
+  public ApiResponseDto<Void> createUser(@Valid @RequestBody CreateUserRequestDto req) {
+    userSerivce.save(req);
     return new ApiResponseDto<>("SUCCESS", null, "アカウントの作成が完了しました。");
   }
 }

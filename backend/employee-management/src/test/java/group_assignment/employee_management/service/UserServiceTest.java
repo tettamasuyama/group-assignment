@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import group_assignment.employee_management.dto.common.ApiResponseDto;
 import group_assignment.employee_management.dto.user.CreateUserRequestDto;
 import group_assignment.employee_management.entity.Role;
 import group_assignment.employee_management.entity.User;
@@ -28,7 +27,7 @@ public class UserServiceTest {
 
   @InjectMocks UserSerivce userService;
 
-  @Test void save_新規登録が完了したらApiResponseを返す() {
+  @Test void save_DBにUserを新規登録を保存() {
     String email = "test@example.com";
     String password = "password123";
     Role role = Role.ADMIN;
@@ -42,7 +41,7 @@ public class UserServiceTest {
     .thenReturn(null);
 
     // service実行
-    ApiResponseDto<Void> response = userService.save(req);
+    userService.save(req);
 
     // 保存した情報確認
     ArgumentCaptor<User> capter = ArgumentCaptor.forClass(User.class);
@@ -51,7 +50,6 @@ public class UserServiceTest {
 
     User result = capter.getValue();
 
-    assertEquals("SUCCESS", response.getStatus());
     assertEquals(email, result.getEmail());
     assertEquals("encodedPassword", result.getPassword());
     assertEquals(role, result.getRole());
