@@ -18,7 +18,7 @@ public class UserController {
   public UserController(UserSerivce userSerivce) {
     this.userSerivce = userSerivce;
   }
-
+  @PostMapping
   public ApiResponseDto<Void> createUser(@Valid @RequestBody CreateUserRequestDto req) {
     userSerivce.save(req);
     return new ApiResponseDto<>("SUCCESS", null, "アカウントの作成が完了しました。");
