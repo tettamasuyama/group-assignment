@@ -31,7 +31,7 @@ export default function UserEditPage() {
 
       <UserForm/>
       <LogoutButton />
-      <Button text="社員リスト" onClick={() => navigate("/userlist")} />
+      <Button text="社員リスト" onClick={() => navigate("/UserListPage")} />
     </div>
   );
 }

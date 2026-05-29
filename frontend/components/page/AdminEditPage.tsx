@@ -31,7 +31,7 @@ export default function EmployeeEditPage() {
 
       <AdmiForm />
 
-      <Button text="社員リスト" onClick={() => navigate("/employeelist")} />
+      <Button text="社員リスト" onClick={() => navigate("/EmployeeListPage")} />
       <LogoutButton />
     </div>
   );

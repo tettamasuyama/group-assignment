@@ -45,7 +45,7 @@ export default function EmployeeListPage() {
 
       <AdminTable employees={employees} />
 
-      <Button text="編集" onClick={() => navigate("/employeeedit")} />
+      <Button text="編集" onClick={() => navigate("/EmployeeEditPage")} />
       <LogoutButton />
     </div>
   );

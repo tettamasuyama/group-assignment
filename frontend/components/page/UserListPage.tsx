@@ -23,7 +23,7 @@ export default function UserListPage() {
   
   const navigate = useNavigate();
   const [employee, setEmployees] = useState<Employee[]>([]);
-
+  
   useEffect(() => {
     loadEmplpyee();
   }, []);
@@ -43,7 +43,7 @@ export default function UserListPage() {
 
       <UserTable employee={employee} />
 
-      <Button text="編集" onClick={() => navigate("/useredit")} />
+      <Button text="編集" onClick={() => navigate("/UserEditPage")} />
       <LogoutButton />
     </div>
   );
