@@ -19,17 +19,22 @@ public class UserSerivce {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public void save(CreateUserRequestDto req) {
-    if(userRepository.findByEmail(req.getEmail()) != null) {
-      throw new ValidationException();
+  // public void save(CreateUserRequestDto req) {
+  //   if(userRepository.findByEmail(req.getEmail()) != null) {
+  //     throw new ValidationException();
+  //   }
+
+  public void save(CreateUserRequestDto request) {
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+      throw new ValidationException("このメールアドレスは既に登録されています。");
     }
 
-    String hashedPassword = passwordEncoder.encode(req.getPassword());
+    String hashedPassword = passwordEncoder.encode(request.getPassword());
 
     User user = new User(
-      req.getEmail(),
+      request.getEmail(),
       hashedPassword,
-      req.getRole()
+      reqquest.getRole()
     );
 
     userRepository.save(user);
