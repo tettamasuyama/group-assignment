@@ -23,13 +23,13 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
 
-        <Route path="/userlist" element={<UserListPage />} />
+        <Route path="/UserListPage" element={<UserListPage />} />
 
-        <Route path="/useredit" element={<UserEditPage />} />
+        <Route path="/UserEditPage" element={<UserEditPage />} />
 
-        <Route path="/employeelist" element={<AdminListPage />} />
+        <Route path="/AdminListPage" element={<AdminListPage />} />
 
-        <Route path="/employeeedit" element={<AdminEditPage />} />
+        <Route path="/AdminEditPage" element={<AdminEditPage />} />
       </Routes>
     </BrowserRouter>
   );
