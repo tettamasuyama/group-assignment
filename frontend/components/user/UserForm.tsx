@@ -8,6 +8,35 @@ import UserFormTable from "../../components/user/UserFormTable";
 import { Employee } from "../../decision/AdminApi";
 import { userOnlyApi } from "../../decision/UserApi";
 
+/*
+ * ユーザー自身の情報を取得・編集するフォームコンポーネント。
+ *
+ * name, email を useState で入力状態として管理する。
+ *
+ * employee は Employee型またはnullで管理し、
+ * APIから取得した現在のユーザー情報を保持する。
+ *
+ * useEffect により画面初回表示時に loadEmployeeMe を実行し、
+ * ログインユーザー情報を取得する。
+ *
+ * 取得成功時：
+ *   - setEmployees(data) でユーザー情報保存
+ *   - setName(data.name) でinput初期値設定
+ *   - setMail(data.email) でinput初期値設定
+ *
+ * 取得失敗時：
+ *   alertでエラーメッセージ表示
+ *
+ * handleEdit では入力チェック後、
+ * userEditApi を利用してユーザー情報更新を行う。
+ *
+ * 更新成功時：
+ *   - 最新情報再取得
+ *   - 更新完了メッセージ表示
+ *
+ * 更新失敗時：
+ *   alertでエラーメッセージ表示
+ */
 
 export default function UserForm() {
 
@@ -26,8 +55,9 @@ export default function UserForm() {
       setEmployees(data);
 
       // input初期値
-      setName(data.name);
-      setMail(data.email);
+      //　undifindであれば、空文字でバックエンドから取得
+      setName(data.name ?? "");
+      setMail(data.email ?? "");
     } catch {
       alert("ユーザー情報は見当たりませんでした");
     }
