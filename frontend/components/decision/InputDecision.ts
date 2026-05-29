@@ -27,10 +27,7 @@ export function employeeNumberDecision(number: string): boolean {
  */
 
 export function nameDecision(name: string): boolean {
-  //未入力可
-   if (name === "") {
-    return true;
-  }
+
   
   //前後空白除去
   name = name.trim();
@@ -78,18 +75,9 @@ export function nameDecision(name: string): boolean {
 
 export function mailDecision(mail: string): boolean {
 
-   //未入力可
-   if (mail === "") {
-    return true;
-  }
 
   if (mail.length > 254) {
     alert("メールアドレスを245文字以内で入力を行ってください");
-    return false;
-  }
-
-  if (mail === "") {
-    alert("メールアドレスの入力を行ってください");
     return false;
   }
 
