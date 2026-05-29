@@ -22,6 +22,8 @@ export async function userApi(): Promise<Employee[]> {
   return await response.json();
 }
 
+
+
 /*
 *　自身の情報を取得
 */
