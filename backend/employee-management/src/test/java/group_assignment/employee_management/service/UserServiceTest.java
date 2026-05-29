@@ -43,7 +43,7 @@ public class UserServiceTest {
     // service実行
     userService.save(req);
 
-    // 保存した情報確認
+    // 検証
     ArgumentCaptor<User> capter = ArgumentCaptor.forClass(User.class);
 
     verify(userRepository).save(capter.capture());
