@@ -83,12 +83,12 @@ export default function AdmiForm() {
 
     await employeeRegistration({
       employeeNumber,
-      name: employeeName,
-      email,
-      department,
-      role,
-      status,
-      joinDate,
+      name: employeeName ==="" ? undefined : employeeName,
+      email: email ==="" ? undefined : email,
+      department: department ==="" ? undefined : department,
+      role: role ==="" ? undefined : role,
+      status: status ==="" ? undefined : status,
+      joinDate: joinDate ==="" ? undefined : joinDate,
     });
   };
 
