@@ -10,7 +10,7 @@ export async function newRegistrationApi(
   isAdmin: boolean,
 ) {
   //enumのroleフィールドへ
-  const role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
+ const role = isAdmin ? "ADMIN" : "EMPLOYEE";
   try {
 
     if(email===""){
@@ -25,7 +25,10 @@ export async function newRegistrationApi(
 
     if (mailDecision(email)) {
       if (passwordDecision(password)) {
-        const response = await fetch("/api/auth/register", {
+        const response = await fetch(
+          // "/api/auth/register"
+          "http://localhost:8080/api/auth/register"
+          , {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -37,23 +40,28 @@ export async function newRegistrationApi(
           }),
         });
 
+        //追記
+        
+
         // レスポンスbody取得
         const data = await response.json();
 
         // token保存
-        localStorage.setItem("token", data.token);
+        // localStorage.setItem("token", data.token);
 
         // role保存
-        localStorage.setItem("role", role);
+        // localStorage.setItem("role", role);
 
         if (response.ok) {
-          if (role === "ROLE_ADMIN") {
-            window.location.href = "/AdminListPage";
-          } else {
-            window.location.href = "/UserListPage";
-          }
+          // if (role === "ROLE_ADMIN") {
+          //   window.location.href = "/AdminListPage";
+          // } else {
+          //   window.location.href = "/UserListPage";
+          // }
+          alert("登録に成功しました。");
         } else {
-          alert("アクセスに失敗しました");
+          // alert("アクセスに失敗しました");
+          alert("登録に失敗しました。");
         }
       }
     }
