@@ -1,11 +1,11 @@
 export type Employee = {
   employeeNumber: string;
-  name: string;
-  email: string;
-  department: string;
-  role: string;
-  joinDate: string;
-  status: string;
+  name: string | undefined;
+  email: string | undefined;
+  department: string | undefined;
+  role: string | undefined;
+  joinDate: string | undefined;
+  status: string | undefined;
 };
 
 /*
