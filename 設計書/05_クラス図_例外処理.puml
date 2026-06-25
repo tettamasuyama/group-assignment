@@ -1,0 +1,87 @@
+## 06_クラス図_Exception.puml
+
+```plantuml
+@startuml
+
+class GlobalExceptionHandler {
+  + handleAuthException(AuthException e): ResponseEntity<ApiResponseDto<Void>>
+  + handleValidationException(ValidationException e): ResponseEntity<ApiResponseDto<Void>>
+  + handleFileException(FileException e): ResponseEntity<ApiResponseDto<Void>>
+  + handleConflictException(ConflictException e): ResponseEntity<ApiResponseDto<Void>>
+  + handleNotFoundException(NotFoundException e): ResponseEntity<ApiResponseDto<Void>>
+  + handleException(Exception e): ResponseEntity<ApiResponseDto<Void>>
+}
+
+note right of GlobalExceptionHandler
+アプリケーション全体の例外を
+まとめて処理するクラス。
+発生した例外に応じて
+HTTPステータスと
+ApiResponseDtoを返却する。
+end note
+
+class AuthException {
+  + AuthException(String message)
+}
+
+note right of AuthException
+ログイン失敗などの
+認証エラーを表す例外クラス。
+401 Unauthorizedを返す。
+end note
+
+class ValidationException {
+  + ValidationException(String message)
+}
+
+note right of ValidationException
+入力値不正などの
+バリデーションエラーを表す例外クラス。
+400 Bad Requestを返す。
+end note
+
+class FileException {
+  + FileException(String message)
+}
+
+note right of FileException
+CSVインポートなどの
+ファイル処理エラーを表す例外クラス。
+400 Bad Requestを返す。
+end note
+
+class ConflictException {
+  + ConflictException(String message)
+}
+
+note right of ConflictException
+メールアドレスや社員番号の重複など、
+データ競合を表す例外クラス。
+409 Conflictを返す。
+end note
+
+class NotFoundException {
+  + NotFoundException(String message)
+}
+
+note right of NotFoundException
+対象データが存在しない場合の
+例外クラス。
+404 Not Foundを返す。
+end note
+
+class ApiResponseDto<T> {
+  - String status
+  - T data
+  - String message
+}
+
+GlobalExceptionHandler --> AuthException : 401 認証エラー
+GlobalExceptionHandler --> ValidationException : 400 入力エラー
+GlobalExceptionHandler --> FileException : 400 ファイルエラー
+GlobalExceptionHandler --> ConflictException : 409 重複エラー
+GlobalExceptionHandler --> NotFoundException : 404 未存在エラー
+GlobalExceptionHandler --> ApiResponseDto : エラーレスポンス生成
+
+@enduml
+```

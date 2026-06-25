@@ -1,0 +1,146 @@
+## 05_クラス図_Security_DTO.puml
+
+```plantuml
+@startuml
+
+class SecurityConfig {
+  - JwtFilter jwtFilter
+  + securityFilterChain(HttpSecurity http): SecurityFilterChain
+  + passwordEncoder(): PasswordEncoder
+  + corsConfigurationSource(): CorsConfigurationSource
+}
+
+note right of SecurityConfig
+Spring Securityの設定クラス。
+ログイン不要URL、認証が必要なURL、
+JWTフィルター、CORS設定、
+パスワード暗号化設定を行う。
+end note
+
+class JwtFilter {
+  - JwtProvider jwtProvider
+  + doFilterInternal(request, response, filterChain): void
+}
+
+note right of JwtFilter
+リクエストごとに実行されるフィルター。
+AuthorizationヘッダーからJWTを取得し、
+トークン検証後、ユーザーIDを取得する。
+end note
+
+class JwtProvider {
+  + generateToken(Long userId): String
+  + validateToken(String token): boolean
+  + getUserId(String token): Long
+}
+
+note right of JwtProvider
+JWTを生成・検証するクラス。
+ログイン成功時にトークンを作成し、
+APIアクセス時にトークンから
+ユーザーIDを取り出す。
+end note
+
+class CustomUserPrincipal {
+  - Long id
+  + getId(): Long
+}
+
+note right of CustomUserPrincipal
+認証済みユーザー情報を保持するクラス。
+JWTから取得したuserIdを保持し、
+Controllerでログイン中のユーザーIDを取得する。
+end note
+
+class AuthRequestDto {
+  - String email
+  - String password
+}
+
+class AuthResponseDto {
+  - String token
+  - Role role
+}
+
+class CreateUserRequestDto {
+  - String email
+  - String password
+  - Role role
+}
+
+class EmployeeRequestForAdminDto {
+  - String name
+  - String email
+  - Department department
+  - Position position
+  - LocalDate hireDate
+  - Status status
+}
+
+class EmployeeRequestForEmployeeDto {
+  - String name
+  - String email
+}
+
+class EmployeeResponseForAdminDto {
+  - String employeeNumber
+  - String name
+  - String email
+  - Department department
+  - Position position
+  - LocalDate hireDate
+  - Status status
+}
+
+class EmployeeResponseForEmployeeDto {
+  - String name
+  - String email
+}
+
+class ApiResponseDto<T> {
+  - String status
+  - T data
+  - String message
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum Department {
+  GENERAL
+  HR
+  PLANNING
+  SALES
+}
+
+enum Position {
+  STAFF
+  LEADER
+  MANAGER
+  DIRECTOR
+  EXECUTIVE
+  CEO
+}
+
+enum Status {
+  ACTIVE
+  RETIRED
+}
+
+SecurityConfig --> JwtFilter : JWT認証フィルターを登録
+JwtFilter --> JwtProvider : トークン検証・userId取得
+JwtFilter --> CustomUserPrincipal : 認証済みユーザー情報を作成
+
+AuthResponseDto --> Role
+CreateUserRequestDto --> Role
+EmployeeRequestForAdminDto --> Department
+EmployeeRequestForAdminDto --> Position
+EmployeeRequestForAdminDto --> Status
+EmployeeResponseForAdminDto --> Department
+EmployeeResponseForAdminDto --> Position
+EmployeeResponseForAdminDto --> Status
+
+@enduml
+```

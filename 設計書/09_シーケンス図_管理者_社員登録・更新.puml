@@ -1,0 +1,124 @@
+@startuml
+
+actor Admin as "管理者"
+
+participant JwtFilter
+participant JwtProvider
+participant EmployeeController
+participant EmployeeService
+participant EmployeeRepository
+participant UserRepository
+
+Admin -> JwtFilter : POST /api/employees/{employeeNumber}\nBearer Token\n社員情報
+note right
+  管理者が社員番号を指定して、
+  社員情報の登録または更新を行う。
+end note
+
+JwtFilter -> JwtProvider : validateToken()
+JwtProvider --> JwtFilter : true
+
+JwtFilter -> JwtProvider : getUserId()
+JwtProvider --> JwtFilter : userId
+
+JwtFilter -> EmployeeController : 認証済みリクエスト
+
+EmployeeController -> EmployeeService : updateEmployee(employeeNumber, request)
+note right
+  Controllerは社員番号と入力された社員情報を
+  Serviceへ渡す。
+end note
+
+EmployeeService -> EmployeeRepository : findByEmployeeNumber(employeeNumber)
+note right
+  社員番号で既存社員を検索する。
+end note
+
+alt 社員番号が存在しない
+
+    EmployeeRepository --> EmployeeService : Optional.empty
+
+    alt 必須項目が不足している
+
+        EmployeeService --> EmployeeController : RuntimeException
+        note right
+          新規登録時は全項目が必要。
+          不足している場合は例外を返す。
+        end note
+
+    else 必須項目がすべて入力されている
+
+        EmployeeService -> EmployeeService : new Employee(...)
+        note right
+          入力内容から新しいEmployeeを生成する。
+        end note
+
+        EmployeeService -> EmployeeRepository : save(newEmployee)
+
+        EmployeeRepository --> EmployeeService : Employee
+
+        EmployeeService --> EmployeeController : Employee
+
+        EmployeeController --> Admin : 200 OK\n登録完了
+
+    end
+
+else 社員番号が存在する
+
+    EmployeeRepository --> EmployeeService : Employee
+
+    EmployeeService -> UserRepository : findByEmail(oldMail)
+    note right
+      メールアドレス変更に備えて、
+      変更前メールアドレスでUserを検索する。
+    end note
+
+    UserRepository --> EmployeeService : User または null
+
+    EmployeeService -> EmployeeService : 入力された項目のみ更新
+    note right
+      name, email, department, position,
+      hireDate, status のうち、
+      入力された項目だけ更新する。
+    end note
+
+    alt メールアドレスが入力されている
+
+        EmployeeService -> EmployeeService : employee.setEmail(request.getEmail())
+
+        alt Userが存在する
+
+            EmployeeService -> UserRepository : user.setEmail(request.getEmail())\nsave(user)
+            note right
+              Employeeだけでなく、
+              Userテーブルのメールアドレスも更新する。
+            end note
+
+        else Userが存在しない
+
+            note right
+              Userが存在しない場合は、
+              Employeeのみ更新する。
+            end note
+
+        end
+
+    else メールアドレス未入力
+
+        note right
+          メールアドレスは変更しない。
+        end note
+
+    end
+
+    EmployeeService -> EmployeeRepository : save(employee)
+
+    EmployeeRepository --> EmployeeService : Employee
+
+    EmployeeService --> EmployeeController : Employee
+
+    EmployeeController --> Admin : 200 OK\n更新完了
+
+end
+
+@enduml

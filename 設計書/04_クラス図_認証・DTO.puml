@@ -1,0 +1,381 @@
+@startuml
+
+class SecurityConfig {
+  - JwtFilter jwtFilter
+  + securityFilterChain(HttpSecurity http): SecurityFilterChain
+  + passwordEncoder(): PasswordEncoder
+  + corsConfigurationSource(): CorsConfigurationSource
+}
+
+note right of SecurityConfig
+Spring Securityの設定クラス。
+ログイン不要URL、認証が必要なURL、
+JWTフィルター、CORS設定、
+パスワード暗号化設定を行う。
+end note
+
+class JwtFilter {
+  - JwtProvider jwtProvider
+  + doFilterInternal(request, response, filterChain): void
+}
+
+note right of JwtFilter
+リクエストごとに実行されるフィルター。
+AuthorizationヘッダーからJWTを取得し、
+トークン検証後、ユーザーIDを取得する。
+end note
+
+class JwtProvider {
+  + generateToken(Long userId): String
+  + validateToken(String token): boolean
+  + getUserId(String token): Long
+}
+
+note right of JwtProvider
+JWTを生成・検証するクラス。
+ログイン成功時にトークンを作成し、
+APIアクセス時にトークンから
+ユーザーIDを取り出す。
+end note
+
+class CustomUserPrincipal {
+  - Long id
+  + getId(): Long
+}
+
+note right of CustomUserPrincipal
+認証済みユーザー情報を保持するクラス。
+JWTから取得したuserIdを保持し、
+Controllerでログイン中のユーザーIDを取得するために使用する。
+end note
+
+class AuthController {
+  - AuthService authService
+  + login(AuthRequestDto req): ApiResponseDto<AuthResponseDto>
+}
+
+note right of AuthController
+ログインAPIを担当するController。
+フロントから受け取ったメールアドレスと
+パスワードをAuthServiceへ渡す。
+end note
+
+class UserController {
+  - UserService userService
+  + createUser(CreateUserRequestDto req): AuthResponseDto
+}
+
+note right of UserController
+ユーザー新規登録APIを担当するController。
+登録情報をUserServiceへ渡し、
+ユーザー作成処理を行う。
+end note
+
+class EmployeeController {
+  - EmployeeService employeeService
+  + getEmployees(): ApiResponseDto<List<EmployeeResponseForAdminDto>>
+  + getMe(Authentication authentication): ApiResponseDto<EmployeeResponseForEmployeeDto>
+  + createOrUpdateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): ApiResponseDto<Void>
+  + updateMe(Authentication authentication, EmployeeRequestForEmployeeDto req): ApiResponseDto<Employee>
+  + deleteEmployee(String employeeNumber): ApiResponseDto<Void>
+  + importEmployees(MultipartFile file): ApiResponseDto<Void>
+}
+
+note right of EmployeeController
+社員情報APIを担当するController。
+社員一覧取得、自分の情報取得、
+社員登録・更新、削除、
+CSVインポート処理を受け付ける。
+end note
+
+class AuthService {
+  - UserRepository userRepository
+  - PasswordEncoder passwordEncoder
+  - JwtProvider jwtProvider
+  + authenticate(String email, String password): AuthResponseDto
+}
+
+note right of AuthService
+ログイン認証処理を担当するService。
+メールアドレスでユーザーを検索し、
+パスワード照合後、JWTを発行する。
+end note
+
+class UserService {
+  - UserRepository userRepository
+  - PasswordEncoder passwordEncoder
+  - JwtProvider jwtProvider
+  + save(CreateUserRequestDto req): AuthResponseDto
+}
+
+note right of UserService
+ユーザー登録処理を担当するService。
+パスワードを暗号化してusersテーブルへ保存し、
+登録後にJWTを発行する。
+end note
+
+class EmployeeService {
+  - EmployeeRepository employeeRepository
+  - UserRepository userRepository
+  + findAll(): List<EmployeeResponseForAdminDto>
+  + findMe(Long userId): EmployeeResponseForEmployeeDto
+  + createOrUpdateEmployee(String employeeNumber, EmployeeRequestForAdminDto req): void
+  + updateMe(Long userId, EmployeeRequestForEmployeeDto req): Employee
+  + deleteEmployee(String employeeNumber): void
+  + importEmployees(MultipartFile file): void
+}
+
+note right of EmployeeService
+社員情報の業務処理を担当するService。
+社員一覧取得、自分の情報取得、
+社員登録・更新、削除、
+CSVインポート処理を行う。
+end note
+
+interface UserRepository {
+  + findById(Long id): Optional<User>
+  + findByEmail(String email): Optional<User>
+  + existsByEmail(String email): boolean
+  + save(User user): User
+  + delete(User user): void
+}
+
+note right of UserRepository
+usersテーブルへアクセスするRepository。
+ユーザー検索、登録、削除を行う。
+end note
+
+interface EmployeeRepository {
+  + findAll(): List<Employee>
+  + findByEmail(String email): Optional<Employee>
+  + findByEmployeeNumber(String employeeNumber): Optional<Employee>
+  + existsByEmployeeNumber(String employeeNumber): boolean
+  + save(Employee employee): Employee
+  + delete(Employee employee): void
+}
+
+note right of EmployeeRepository
+employeesテーブルへアクセスするRepository。
+社員検索、一覧取得、登録、更新、
+削除を行う。
+end note
+
+class User {
+  - Long id
+  - String email
+  - String password
+  - Role role
+}
+
+note right of User
+usersテーブルに対応するEntity。
+ログイン情報と権限を管理する。
+end note
+
+class Employee {
+  - Long id
+  - String employeeNumber
+  - String name
+  - String email
+  - Department department
+  - Position position
+  - LocalDate hireDate
+  - Status status
+}
+
+note right of Employee
+employeesテーブルに対応するEntity。
+社員番号、氏名、部署、役職、
+入社日、在籍状態を管理する。
+end note
+
+class AuthRequestDto {
+  - String email
+  - String password
+}
+
+note right of AuthRequestDto
+ログイン時のリクエストDTO。
+メールアドレスとパスワードを受け取る。
+end note
+
+class AuthResponseDto {
+  - String token
+  - Role role
+}
+
+note right of AuthResponseDto
+ログイン成功時のレスポンスDTO。
+JWTトークンとユーザー権限を返す。
+end note
+
+class CreateUserRequestDto {
+  - String email
+  - String password
+  - Role role
+}
+
+note right of CreateUserRequestDto
+ユーザー新規登録時のリクエストDTO。
+メールアドレス、パスワード、
+権限を受け取る。
+end note
+
+class EmployeeRequestForAdminDto {
+  - String name
+  - String email
+  - Department department
+  - Position position
+  - LocalDate hireDate
+  - Status status
+}
+
+note right of EmployeeRequestForAdminDto
+管理者が社員を登録・更新する際のDTO。
+社員番号以外の社員情報を受け取る。
+社員番号はURLから受け取る。
+end note
+
+class EmployeeRequestForEmployeeDto {
+  - String name
+  - String email
+}
+
+note right of EmployeeRequestForEmployeeDto
+一般社員が自分の情報を更新する際のDTO。
+更新可能な氏名とメールアドレスのみを受け取る。
+end note
+
+class EmployeeResponseForAdminDto {
+  - String employeeNumber
+  - String name
+  - String email
+  - Department department
+  - Position position
+  - LocalDate hireDate
+  - Status status
+}
+
+note right of EmployeeResponseForAdminDto
+管理者向けの社員情報レスポンスDTO。
+社員一覧で表示する全項目を返す。
+end note
+
+class EmployeeResponseForEmployeeDto {
+  - String name
+  - String email
+}
+
+note right of EmployeeResponseForEmployeeDto
+一般社員向けのレスポンスDTO。
+氏名とメールアドレスのみを返す。
+end note
+
+class ApiResponseDto<T> {
+  - String status
+  - T data
+  - String message
+}
+
+note right of ApiResponseDto
+APIレスポンス形式を統一するDTO。
+成功・失敗状態、返却データ、
+メッセージを保持する。
+end note
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum Department {
+  GENERAL
+  HR
+  PLANNING
+  SALES
+}
+
+enum Position {
+  STAFF
+  LEADER
+  MANAGER
+  DIRECTOR
+  EXECUTIVE
+  CEO
+}
+
+enum Status {
+  ACTIVE
+  RETIRED
+}
+
+SecurityConfig --> JwtFilter : JWT認証フィルターを登録
+JwtFilter --> JwtProvider : トークン検証・userId取得
+JwtFilter --> CustomUserPrincipal : 認証済みユーザー情報を作成
+
+AuthController --> AuthService : ログイン処理を依頼
+UserController --> UserService : ユーザー登録処理を依頼
+EmployeeController --> EmployeeService : 社員情報処理を依頼
+
+AuthService --> UserRepository : ユーザー検索
+AuthService --> JwtProvider : JWT発行
+UserService --> UserRepository : ユーザー保存
+UserService --> JwtProvider : JWT発行
+EmployeeService --> EmployeeRepository : 社員情報へアクセス
+EmployeeService --> UserRepository : ユーザー情報へアクセス
+
+UserRepository --> User : usersテーブルのEntity
+EmployeeRepository --> Employee : employeesテーブルのEntity
+
+AuthController --> AuthRequestDto : ログイン入力
+AuthController --> AuthResponseDto : ログイン結果
+UserController --> CreateUserRequestDto : ユーザー登録入力
+EmployeeController --> EmployeeRequestForAdminDto : 管理者用入力
+EmployeeController --> EmployeeRequestForEmployeeDto : 社員用入力
+EmployeeController --> EmployeeResponseForAdminDto : 管理者用出力
+EmployeeController --> EmployeeResponseForEmployeeDto : 社員用出力
+
+User --> Role : 権限を持つ
+Employee --> Department : 部署を持つ
+Employee --> Position : 役職を持つ
+Employee --> Status : 在籍状態を持つ
+
+User "0..1" -- "0..1" Employee : emailで紐づく
+
+note on link
+usersテーブルとemployeesテーブルは
+外部キーではなく、emailを使って
+論理的に紐づけている。
+end note
+
+class GlobalExceptionHandler {
+  + handleAuthException(...)
+  + handleValidationException(...)
+  + handleFileException(...)
+  + handleConflictException(...)
+  + handleNotFoundException(...)
+  + handleException(...)
+}
+
+note right of GlobalExceptionHandler
+アプリケーション全体の例外を
+まとめて処理するクラス。
+発生した例外に応じて
+HTTPステータスと
+ApiResponseDtoを返却する。
+end note
+
+class AuthException
+class ValidationException
+class FileException
+class ConflictException
+class NotFoundException
+
+GlobalExceptionHandler --> AuthException
+GlobalExceptionHandler --> ValidationException
+GlobalExceptionHandler --> FileException
+GlobalExceptionHandler --> ConflictException
+GlobalExceptionHandler --> NotFoundException
+GlobalExceptionHandler --> ApiResponseDto
+
+@enduml

@@ -1,0 +1,82 @@
+@startuml
+
+actor Admin as "管理者"
+
+participant JwtFilter
+participant JwtProvider
+participant EmployeeController
+participant EmployeeService
+participant EmployeeRepository
+participant UserRepository
+
+Admin -> JwtFilter : DELETE /api/employees/{employeeNumber}\nBearer Token
+note right
+  管理者が社員番号を指定して
+  社員情報を削除する。
+end note
+
+JwtFilter -> JwtProvider : validateToken()
+JwtProvider --> JwtFilter : true
+
+JwtFilter -> JwtProvider : getUserId()
+JwtProvider --> JwtFilter : userId
+
+JwtFilter -> EmployeeController : 認証済みリクエスト
+
+EmployeeController -> EmployeeService : deleteEmployee(employeeNumber)
+note right
+  Controllerが社員番号をServiceへ渡し、
+  削除処理を依頼する。
+end note
+
+EmployeeService -> EmployeeRepository : findByEmployeeNumber(employeeNumber)
+note right
+  社員番号から削除対象の社員を検索する。
+end note
+
+alt 社員が存在する
+
+    EmployeeRepository --> EmployeeService : Employee
+
+    EmployeeService -> UserRepository : findByEmail(employee.getEmail())
+    note right
+      Userテーブルには社員番号がないため、
+      EmployeeのメールアドレスでUserを検索する。
+    end note
+
+    UserRepository --> EmployeeService : User または null
+
+    EmployeeService -> EmployeeRepository : delete(employee)
+    note right
+      Employeeテーブルから社員情報を削除する。
+    end note
+
+    alt Userが存在する
+        EmployeeService -> UserRepository : delete(user)
+        note right
+          Userテーブルにも該当データがあれば削除する。
+        end note
+    else Userが存在しない
+        note right
+          User情報がない場合は、
+          Employeeのみ削除して処理を続行する。
+        end note
+    end
+
+    EmployeeService --> EmployeeController : 削除完了
+
+    EmployeeController --> Admin : 200 OK\n社員情報を削除しました
+
+else 社員が存在しない
+
+    EmployeeRepository --> EmployeeService : Optional.empty
+
+    EmployeeService --> EmployeeController : RuntimeException
+    note right
+      社員情報が見つからないため、
+      例外を発生させる。
+    end note
+
+end
+
+@enduml
