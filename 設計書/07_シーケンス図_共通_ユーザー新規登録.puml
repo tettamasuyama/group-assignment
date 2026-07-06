@@ -9,7 +9,7 @@ participant PasswordEncoder
 participant EmployeeRepository
 participant JwtProvider
 
-User -> UserController : POST /api/auth/register\n(email, password, role)
+User -> UserController : POST /api/auth/register\n(name, email, password, department, position, role)
 
 UserController -> UserService : save(request)
 
@@ -66,7 +66,7 @@ else 登録可能
     ・社員番号
     ・氏名「未登録」
     ・メールアドレス
-    ・部署/役職/入社日/状態の初期値
+    ・部署/役職
     end note
 
 
